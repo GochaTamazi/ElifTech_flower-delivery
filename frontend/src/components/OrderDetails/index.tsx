@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './OrderDetails.css';
+import backIcon from '../../assets/back-arrow.svg'; // Make sure to add a back arrow icon
 
 interface OrderItem {
     Id: number;
@@ -85,109 +86,83 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
     }, [orderId]);
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString();
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return dateString;
+        }
+    };
+
+    const handleBack = () => {
+        onBackToShop();
     };
 
     if (isLoading) {
         return (
-            <div className="order-details">
-                <div className="loading">Loading order details...</div>
+            <div className="order-details-container">
+                <div className="order-loading">Loading order details...</div>
             </div>
         );
     }
 
-    if (error) {
+    if (error || !order) {
         return (
-            <div className="order-details">
-                <div className="error-message">{error}</div>
-                <button 
-                    className="back-to-shop"
-                    onClick={onBackToShop}
-                >
-                    Back to Shop
-                </button>
+            <div className="order-details-container">
+                <div className="order-error">
+                    <p>Unable to load order details.</p>
+                    <button className="back-to-shop" onClick={handleBack}>
+                        <img src={backIcon} alt="Back" /> Back to Shop
+                    </button>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="order-details">
-            <h2>Order Details</h2>
+            <h1>Order Details</h1>
+            <p className="order-number">#{order.Id.substring(0, 8).toUpperCase()}</p>
             
-            {order ? (
-                <div className="order-info">
-                    <div className="order-header">
-                        <p><strong>Order #:</strong> {order.Id}</p>
-                        <p><strong>Shop ID:</strong> {order.ShopId}</p>
-                        <p><strong>Order Date:</strong> {order.CreatedAt ? formatDate(order.CreatedAt) : 'N/A'}</p>
-                        <p><strong>Timezone:</strong> {order.UserTimezone}</p>
-                    </div>
-
-                    <div className="customer-info">
-                        <h3>Customer Information</h3>
-                        <p><strong>Email:</strong> {order.Email}</p>
-                        <p><strong>Phone:</strong> {order.Phone}</p>
-                        <p><strong>Delivery Address:</strong> {order.DeliveryAddress}</p>
-                        <p><strong>Location:</strong> {order.DeliveryLatitude}, {order.DeliveryLongitude}</p>
-                        {order.CouponCode && <p><strong>Coupon Code:</strong> {order.CouponCode}</p>}
-                    </div>
-
-                    <div className="order-items">
-                        <h3>Order Items</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {order.items && order.items.length > 0 ? (
-                                    order.items.map((item) => (
-                                        <tr key={item.Id}>
-                                            <td>Flower #{item.FlowerId}</td>
-                                            <td>{item.Quantity}</td>
-                                            <td>N/A</td>
-                                            <td>N/A</td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={4} className="no-items">No items in this order</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colSpan={3} className="total-label">Total:</td>
-                                    <td className="total-amount">${order.TotalPrice ? order.TotalPrice.toFixed(2) : '0.00'}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-
-                    <div className="order-actions">
-                        <button 
-                            className="back-to-shop"
-                            onClick={onBackToShop}
-                        >
-                            Continue Shopping
-                        </button>
-                    </div>
+            <div className="order-items">
+                <h2>Your Order</h2>
+                <div className="items-list">
+                    {order.items && order.items.length > 0 ? (
+                        order.items.map((item) => (
+                            <div key={item.Id} className="order-item">
+                                <div className="item-image">
+                                    <div className="image-placeholder">🌹</div>
+                                </div>
+                                <div className="item-name">Flower #{item.FlowerId}</div>
+                                <div className="item-quantity">x{item.Quantity}</div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="no-items">No items in this order</div>
+                    )}
                 </div>
-            ) : (
-                <div className="no-order">
-                    <p>No order details available.</p>
-                    <button 
-                        className="back-to-shop"
-                        onClick={onBackToShop}
-                    >
-                        Back to Shop
-                    </button>
+                
+                <div className="order-total">
+                    <span>Total:</span>
+                    <span className="total-amount">${order.TotalPrice ? order.TotalPrice.toFixed(2) : '0.00'}</span>
                 </div>
-            )}
+            </div>
+            
+            <div className="order-info">
+                <h3>Delivery Address:</h3>
+                <p>{order.DeliveryAddress || 'No address provided'}</p>
+                
+                <h3>Date:</h3>
+                <p>{order.CreatedAt ? formatDate(order.CreatedAt) : 'N/A'}</p>
+            </div>
         </div>
     );
 };
