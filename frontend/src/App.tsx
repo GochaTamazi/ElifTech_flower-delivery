@@ -3,7 +3,7 @@ import './App.css';
 import apiService from "./api/apiService";
 import { Flower, Shop, CartItem, OrderForm, ShopResponse } from './types';
 import ShopPage from './components/Shop';
-///import CartPage from './components/Cart';
+import CartPage from './components/Cart';
 
 const App: React.FC = () => {
     // State
@@ -175,15 +175,15 @@ const App: React.FC = () => {
                     onSelectShop={setSelectedShop}
                     onAddToCart={addToCart}
                 />
-            ) : (""
-                /*<CartPage
+            ) : (
+                <CartPage
                     cartItems={cartItems}
                     orderForm={orderForm}
                     onUpdateQuantity={updateQuantity}
                     onRemoveFromCart={removeFromCart}
                     onOrderFormChange={handleOrderFormChange}
                     onSubmitOrder={handleSubmitOrder}
-                />*/
+                />
             )}
         </div>
     );

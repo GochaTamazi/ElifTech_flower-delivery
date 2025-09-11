@@ -1,5 +1,6 @@
 import React from 'react';
 import { Flower } from '../../types';
+import './ProductCard.css';
 
 interface ProductCardProps {
     flower: Flower;

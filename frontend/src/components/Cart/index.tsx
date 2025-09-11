@@ -1,6 +1,7 @@
 import React from 'react';
-/*
+
 import { CartItem as CartItemType, OrderForm as OrderFormType } from '../../types';
+import './Cart.css';
 import CartItem from './CartItem';
 import OrderFormComponent from './OrderForm';
 
@@ -62,4 +63,3 @@ const Cart: React.FC<CartProps> = ({
 };
 
 export default Cart;
-*/

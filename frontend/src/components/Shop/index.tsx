@@ -2,6 +2,7 @@ import React from 'react';
 import { Shop as ShopType, Flower } from '../../types';
 import ShopList from './ShopList';
 import ProductList from './ProductList';
+import './Shop.css';
 
 interface ShopProps {
     shops: ShopType[];

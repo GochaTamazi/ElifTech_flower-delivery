@@ -18,7 +18,7 @@ const ProductList: React.FC<ProductListProps> = ({ flowers, isLoading, onAddToCa
     }
 
     return (
-        <>
+        <div className="products-grid">
             {flowers.map(flower => (
                 <ProductCard 
                     key={flower.Id} 
@@ -26,7 +26,7 @@ const ProductList: React.FC<ProductListProps> = ({ flowers, isLoading, onAddToCa
                     onAddToCart={onAddToCart} 
                 />
             ))}
-        </>
+        </div>
     );
 };
 
