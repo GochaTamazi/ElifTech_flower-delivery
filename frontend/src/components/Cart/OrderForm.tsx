@@ -69,14 +69,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                         placeholder="Enter full delivery address"
                     />
                 </div>
-                <button 
-                    type="submit" 
-                    className="submit-order-btn"
-                    disabled={isSubmitDisabled}
-                    aria-disabled={isSubmitDisabled}
-                >
-                    {isSubmitDisabled ? 'Your cart is empty' : 'Place Order'}
-                </button>
+
             </form>
         </div>
     );
