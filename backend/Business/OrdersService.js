@@ -1,8 +1,9 @@
-const {v4: uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
+const BaseService = require('./BaseService');
 
-class OrdersService {
+class OrdersService extends BaseService {
     constructor(orderRepo, orderItemsRepo, flowerRepo, couponRepo) {
-        this.orderRepo = orderRepo;
+        super(orderRepo);
         this.orderItemsRepo = orderItemsRepo;
         this.flowerRepo = flowerRepo;
         this.couponRepo = couponRepo;
@@ -52,8 +53,16 @@ class OrdersService {
         return orders.map(o => this.orderRepo.getOrderWithItems(o.Id));
     }
 
-    getOrderById(orderId) {
-        return this.orderRepo.getOrderWithItems(orderId);
+    async getById(orderId) {
+        const order = await this.repository.getById(orderId);
+        if (!order) {
+            throw new Error('Order not found');
+        }
+        return this.getOrderWithItems(orderId);
+    }
+
+    async getOrderWithItems(orderId) {
+        return this.repository.getOrderWithItems(orderId);
     }
 
     applyCoupon(orderId, couponCode) {

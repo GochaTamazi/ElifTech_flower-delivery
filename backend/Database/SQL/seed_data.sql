@@ -1,5 +1,5 @@
 -- Сиды: магазины
-INSERT INTO FlowerShops (Name, Address, Latitude, Longitude)
+INSERT INTO Shops (Name, Address, Latitude, Longitude)
 VALUES ('Rose Paradise', '123 Main St, City A', 55.751244, 37.618423),
        ('Tulip Dreams', '45 Garden Ave, City B', 56.838011, 60.597465),
        ('Lily Valley', '78 River Rd, City C', 59.934280, 30.335099),

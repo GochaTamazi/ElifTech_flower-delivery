@@ -1,0 +1,64 @@
+const express = require('express');
+const BaseController = require('./BaseController');
+
+class OrdersController extends BaseController {
+    constructor(orderService) {
+        super(orderService);
+        this.router = express.Router();
+        this.initializeRoutes();
+    }
+
+    initializeRoutes() {
+        this.router.post('/', this.createOrder.bind(this));
+        this.router.get('/email/:email', this.getOrdersByEmail.bind(this));
+        this.router.get('/:orderId', this.getOrderById.bind(this));
+        this.router.post('/:orderId/apply-coupon', this.applyCoupon.bind(this));
+    }
+
+    getRouter() {
+        return this.router;
+    }
+
+    createOrder(req, res) {
+        try {
+            const order = this.service.createOrder(req.body);
+            return this.success(res, order, 201);
+        } catch (error) {
+            return this.handleError(res, error);
+        }
+    }
+
+    getOrdersByEmail(req, res) {
+        try {
+            const {email} = req.params;
+            const orders = this.service.getOrdersByEmail(email);
+            return this.success(res, orders);
+        } catch (error) {
+            return this.handleError(res, error);
+        }
+    }
+
+    getOrderById(req, res) {
+        try {
+            const {orderId} = req.params;
+            const order = this.service.getOrderById(orderId);
+            if (!order) return this.notFound(res, 'Order not found');
+            return this.success(res, order);
+        } catch (error) {
+            return this.handleError(res, error);
+        }
+    }
+
+    applyCoupon(req, res) {
+        try {
+            const {orderId} = req.params;
+            const {couponCode} = req.body;
+            const order = this.service.applyCoupon(orderId, couponCode);
+            return this.success(res, order);
+        } catch (error) {
+            return this.handleError(res, error);
+        }
+    }
+}
+
+module.exports = OrdersController;

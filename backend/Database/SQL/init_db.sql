@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS FlowerShops
+CREATE TABLE IF NOT EXISTS Shops
 (
     Id        INTEGER PRIMARY KEY AUTOINCREMENT,
     Name      TEXT NOT NULL,
@@ -16,8 +16,7 @@ CREATE TABLE IF NOT EXISTS Flowers
     Price       REAL    NOT NULL,
     DateAdded   DATETIME DEFAULT CURRENT_TIMESTAMP,
     ImageUrl    TEXT,
-    IsFavorite  INTEGER  DEFAULT 0, -- 0 = нет, 1 = избранное
-    FOREIGN KEY (ShopId) REFERENCES FlowerShops (Id) ON DELETE CASCADE
+    FOREIGN KEY (ShopId) REFERENCES Shops (Id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Orders
@@ -33,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Orders
     TotalPrice        REAL NOT NULL,
     CreatedAt         DATETIME DEFAULT CURRENT_TIMESTAMP,
     UserTimezone      TEXT,
-    FOREIGN KEY (ShopId) REFERENCES FlowerShops (Id)
+    FOREIGN KEY (ShopId) REFERENCES Shops (Id)
 );
 
 CREATE TABLE IF NOT EXISTS OrderItems

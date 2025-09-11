@@ -1,4 +1,4 @@
-class GenericRepository {
+class BaseRepository {
     constructor(db, tableName) {
         this.db = db;
         this.tableName = tableName;
@@ -44,4 +44,4 @@ class GenericRepository {
     }
 }
 
-module.exports = GenericRepository;
+module.exports = BaseRepository;

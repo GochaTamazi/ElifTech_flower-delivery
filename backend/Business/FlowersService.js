@@ -1,14 +1,25 @@
-class FlowersService {
+const BaseService = require('./BaseService');
+
+class FlowersService extends BaseService {
     constructor(flowerRepo) {
-        this.flowerRepo = flowerRepo;
+        super(flowerRepo);
     }
 
-    getFlowersByShop(shopId, options = {}) {
-        return this.flowerRepo.getFlowersByShop(shopId, options);
+    // Можно добавить специфичные для цветов методы, например:
+    async getFlowersByShop(shopId) {
+        try {
+            return await this.repository.getByShopId(shopId);
+        } catch (error) {
+            throw new Error(`Error getting flowers by shop: ${error.message}`);
+        }
     }
 
-    markFavorite(flowerId, isFavorite) {
-        return this.flowerRepo.markFavorite(flowerId, isFavorite);
+    async searchFlowers(query) {
+        try {
+            return await this.repository.search(query);
+        } catch (error) {
+            throw new Error(`Error searching flowers: ${error.message}`);
+        }
     }
 }
 

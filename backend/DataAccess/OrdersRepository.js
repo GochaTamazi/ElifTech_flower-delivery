@@ -1,4 +1,4 @@
-const GenericRepository = require('./GenericRepository');
+const GenericRepository = require('./BaseRepository');
 
 class OrdersRepository extends GenericRepository {
     constructor(db) {
