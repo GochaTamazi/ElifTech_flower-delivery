@@ -32,7 +32,7 @@ const Shop: React.FC<ShopProps> = ({
                 />
             </aside>
 
-            <main className="products-grid">
+            <main>
                 <ProductList 
                     flowers={flowers}
                     isLoading={isLoading}

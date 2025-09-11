@@ -42,13 +42,20 @@
 }
 
 /* Products grid */
-.products-grid {
+.main-content > main > .products-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+  gap: 1.5rem !important;
+  padding: 1.5rem !important;
+  width: 100% !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.main-content > main {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
-  padding: 1.5rem;
-  overflow-y: auto;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Product card */

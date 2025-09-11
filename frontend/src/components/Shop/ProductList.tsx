@@ -1,6 +1,7 @@
 import React from 'react';
 import { Flower } from '../../types';
 import ProductCard from './ProductCard';
+import styles from './ProductList.module.css';
 
 interface ProductListProps {
     flowers: Flower[];
@@ -10,15 +11,15 @@ interface ProductListProps {
 
 const ProductList: React.FC<ProductListProps> = ({ flowers, isLoading, onAddToCart }) => {
     if (isLoading) {
-        return <div className="loading">Loading flowers...</div>;
+        return <div className={styles.loading}>Loading flowers...</div>;
     }
 
     if (flowers.length === 0) {
-        return <div className="no-flowers">No flowers available in this shop</div>;
+        return <div className={styles.noFlowers}>No flowers available in this shop</div>;
     }
 
     return (
-        <div className="products-grid">
+        <div className={styles.productsGrid}>
             {flowers.map(flower => (
                 <ProductCard 
                     key={flower.Id} 
