@@ -29,6 +29,19 @@ const Cart: React.FC<CartProps> = ({
         ).toFixed(2);
     };
 
+    // Check if all required form fields are filled
+    const isFormValid = () => {
+        return (
+            orderForm.name.trim() !== '' &&
+            orderForm.email.trim() !== '' &&
+            orderForm.phone.trim() !== '' &&
+            orderForm.address.trim() !== '' &&
+            cartItems.length > 0
+        );
+    };
+
+    const isSubmitDisabled = !isFormValid();
+
     return (
         <div className="cart-page">
             <div className="cart-container">
@@ -36,7 +49,7 @@ const Cart: React.FC<CartProps> = ({
                     formData={orderForm}
                     onChange={onOrderFormChange}
                     onSubmit={onSubmitOrder}
-                    isSubmitDisabled={cartItems.length === 0}
+                    isSubmitDisabled={isSubmitDisabled}
                 />
 
                 
@@ -60,9 +73,10 @@ const Cart: React.FC<CartProps> = ({
                                 <button
                                     className="submit-order-btn"
                                     onClick={onSubmitOrder}
-                                    disabled={cartItems.length === 0}
+                                    disabled={isSubmitDisabled}
+                                    title={isSubmitDisabled ? 'Please fill in all required fields' : 'Submit order'}
                                 >
-                                    Submit
+                                    Submit Order
                                 </button>
                             </div>
                         </>

@@ -75,14 +75,33 @@ const App: React.FC = () => {
     }, []);
 
     const handleSubmitOrder = useCallback(() => {
-        // Here you would typically send the order to your backend
-        console.log('Submitting order:', {
-            ...orderForm,
-            items: cartItems,
-            total: cartItems.reduce((sum, item) => sum + (item.Price * item.quantity), 0)
-        });
+        // Prepare the order data in the required JSON format
+        const orderData = {
+            email: orderForm.email,
+            phone: orderForm.phone,
+            deliveryAddress: orderForm.address,
+            deliveryLat: 50.4501, // Default coordinates for Kiev
+            deliveryLng: 30.5234, // Default coordinates for Kiev
+            shopId: selectedShop,
+            items: cartItems.map(item => ({
+                FlowerId: item.Id,
+                Quantity: item.quantity
+            })),
+            couponCode: '', // You can add coupon functionality later
+            userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        };
+
+        // Show the order data in alert
+        alert(JSON.stringify(orderData, null, 2));
         
-        // Clear cart and form after submission
+        // Log to console for debugging
+        console.log('Order data:', orderData);
+        
+        // Here you would typically send the order to your backend
+        // For now, we'll just show the alert with the order data
+        
+        // Commented out the clearing of cart and form since we're just previewing for now
+        /*
         setCartItems([]);
         setOrderForm({
             name: '',
@@ -91,11 +110,9 @@ const App: React.FC = () => {
             address: ''
         });
         
-        // Optionally switch back to shop tab
         setActiveTab('shop');
-        
-        alert('Order submitted successfully!');
-    }, [orderForm, cartItems]);
+        */
+    }, [orderForm, cartItems, selectedShop]);
 
     const getShops = async () => {
         const response = await apiService.get<Shop[]>('/shops');
