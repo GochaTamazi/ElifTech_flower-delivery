@@ -13,6 +13,7 @@ class OrdersService extends BaseService {
 
 
     createOrder({
+                    Name,
                     Email,
                     Phone,
                     DeliveryAddress,
@@ -39,10 +40,11 @@ class OrdersService extends BaseService {
         }
 
         const orderId = uuidv4();
-
+        console.log(Name)
 
         this.repository.insert({  // Changed from orderRepo to repository
             Id: orderId,
+            Name: Name,
             Email: Email,
             Phone: Phone,
             DeliveryAddress: DeliveryAddress,

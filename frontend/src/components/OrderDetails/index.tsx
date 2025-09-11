@@ -23,6 +23,7 @@ interface ShopInfo {
 
 interface OrderDetailsType {
     Id: string;
+    Name: string;
     Email: string;
     Phone: string;
     DeliveryAddress: string;
@@ -48,6 +49,11 @@ interface OrderDetailsProps {
 }
 
 const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) => {
+    // Сбрасываем прокрутку при монтировании компонента
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const [order, setOrder] = useState<OrderDetailsType | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -114,6 +120,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
     };
 
     const handleBack = () => {
+        window.scrollTo(0, 0); // Сбрасываем прокрутку перед переходом
         onBackToShop();
     };
 
@@ -191,6 +198,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
             <div className="order-info">
                 <div className="info-section">
                     <h3>Contact Information</h3>
+                    <p><strong>Full Name:</strong> {order.Name}</p>
                     <p><strong>Email:</strong> {order.Email}</p>
                     <p><strong>Phone:</strong> {order.Phone}</p>
                 </div>

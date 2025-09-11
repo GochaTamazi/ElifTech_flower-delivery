@@ -52,6 +52,7 @@ const Cart: React.FC<CartProps> = ({
             const totalPrice = cartItems.reduce((sum, item) => sum + (item.Price * item.quantity), 0);
             
             const orderData = {
+                Name: orderForm.name,
                 Email: orderForm.email,
                 Phone: orderForm.phone,
                 DeliveryAddress: orderForm.address,

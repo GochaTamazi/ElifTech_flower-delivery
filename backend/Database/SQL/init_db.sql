@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS Flowers
 CREATE TABLE IF NOT EXISTS Orders
 (
     Id                TEXT PRIMARY KEY, -- UUID
+    Name              TEXT NOT NULL,
     Email             TEXT NOT NULL,
     Phone             TEXT NOT NULL,
     DeliveryAddress   TEXT NOT NULL,
