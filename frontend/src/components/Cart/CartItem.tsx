@@ -10,18 +10,26 @@ interface CartItemProps {
 const CartItem: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemove }) => {
     return (
         <div className="cart-item">
-            <img 
-                src={`/images/${item.ImageUrl}`} 
-                alt={item.Name} 
-                className="cart-item-image"
-            />
+            <div className="cart-item-image">
+                {item.ImageUrl ? (
+                    <img 
+                        src={`/images/${item.ImageUrl}`} 
+                        alt={item.Name} 
+                    />
+                ) : (
+                    <span>No image</span>
+                )}
+            </div>
             <div className="cart-item-details">
-                <h3>{item.Name}</h3>
-                <p>${item.Price} each</p>
+                <h4 className="cart-item-name">{item.Name}</h4>
+                <p className="cart-item-price">${item.Price.toFixed(2)}</p>
+            </div>
+            <div className="cart-item-controls">
                 <div className="quantity-controls">
                     <button 
                         onClick={() => onUpdateQuantity(item.Id, item.quantity - 1)}
                         className="quantity-btn"
+                        aria-label="Decrease quantity"
                     >
                         -
                     </button>
@@ -29,19 +37,21 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemove })
                     <button 
                         onClick={() => onUpdateQuantity(item.Id, item.quantity + 1)}
                         className="quantity-btn"
+                        aria-label="Increase quantity"
                     >
                         +
                     </button>
                 </div>
+                <div className="cart-item-total">
+                    ${(item.Price * item.quantity).toFixed(2)}
+                </div>
                 <button 
                     onClick={() => onRemove(item.Id)}
                     className="remove-btn"
+                    aria-label="Remove item"
                 >
-                    Remove
+                    ×
                 </button>
-            </div>
-            <div className="cart-item-total">
-                ${(item.Price * item.quantity).toFixed(2)}
             </div>
         </div>
     );
