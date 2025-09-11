@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './OrderDetails.css';
-import apiService from '../../api/apiService';
 
 interface OrderItem {
     Id: number;
+    OrderId: string;
     FlowerId: number;
     Quantity: number;
-    Price: number;
     FlowerName?: string;
+    Price?: number; // This will be populated later if needed
 }
 
 interface OrderDetailsType {
@@ -15,10 +15,19 @@ interface OrderDetailsType {
     Email: string;
     Phone: string;
     DeliveryAddress: string;
-    Status: string;
+    DeliveryLatitude: number;
+    DeliveryLongitude: number;
+    ShopId: number;
+    CouponCode: string | null;
     TotalPrice: number;
     CreatedAt: string;
-    OrderItems: OrderItem[];
+    UserTimezone: string;
+    items: OrderItem[];
+}
+
+interface ApiResponse {
+    success: boolean;
+    data: OrderDetailsType;
 }
 
 interface OrderDetailsProps {
@@ -44,10 +53,23 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                 setError(null);
                 
                 // Fetch order details from the API
-                const response = await apiService.get<OrderDetailsType>(`/orders/${orderId}`);
+                const response = await fetch(`http://localhost:3000/orders/${orderId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
                 
-                if (response.data) {
-                    setOrder(response.data);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+                }
+                
+                const responseData: ApiResponse = await response.json();
+                
+                if (responseData.success && responseData.data) {
+                    // The API returns items in the 'items' property, so we don't need to transform it
+                    setOrder(responseData.data);
                 } else {
                     setError('No order data received');
                 }
@@ -96,13 +118,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                 <div className="order-info">
                     <div className="order-header">
                         <p><strong>Order #:</strong> {order.Id}</p>
-                        <p>
-                            <strong>Status:</strong>{' '}
-                            <span className={`status-${order.Status ? order.Status.toLowerCase() : 'unknown'}`}>
-                                {order.Status || 'Loading...'}
-                            </span>
-                        </p>
+                        <p><strong>Shop ID:</strong> {order.ShopId}</p>
                         <p><strong>Order Date:</strong> {order.CreatedAt ? formatDate(order.CreatedAt) : 'N/A'}</p>
+                        <p><strong>Timezone:</strong> {order.UserTimezone}</p>
                     </div>
 
                     <div className="customer-info">
@@ -110,6 +128,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                         <p><strong>Email:</strong> {order.Email}</p>
                         <p><strong>Phone:</strong> {order.Phone}</p>
                         <p><strong>Delivery Address:</strong> {order.DeliveryAddress}</p>
+                        <p><strong>Location:</strong> {order.DeliveryLatitude}, {order.DeliveryLongitude}</p>
+                        {order.CouponCode && <p><strong>Coupon Code:</strong> {order.CouponCode}</p>}
                     </div>
 
                     <div className="order-items">
@@ -124,13 +144,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                                 </tr>
                             </thead>
                             <tbody>
-                                {order.OrderItems && order.OrderItems.length > 0 ? (
-                                    order.OrderItems.map((item) => (
+                                {order.items && order.items.length > 0 ? (
+                                    order.items.map((item) => (
                                         <tr key={item.Id}>
-                                            <td>{item.FlowerName || `Flower #${item.FlowerId}`}</td>
+                                            <td>Flower #{item.FlowerId}</td>
                                             <td>{item.Quantity}</td>
-                                            <td>${item.Price?.toFixed(2) || '0.00'}</td>
-                                            <td>${(item.Price * (item.Quantity || 0)).toFixed(2)}</td>
+                                            <td>N/A</td>
+                                            <td>N/A</td>
                                         </tr>
                                     ))
                                 ) : (

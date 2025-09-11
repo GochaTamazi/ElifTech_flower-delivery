@@ -39,6 +39,7 @@ class OrdersController extends BaseController {
         }
     }
 
+    //USES
     getOrderById(req, res) {
         try {
             const {orderId} = req.params;
