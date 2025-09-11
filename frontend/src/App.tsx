@@ -74,34 +74,8 @@ const App: React.FC = () => {
         }));
     }, []);
 
-    const handleSubmitOrder = useCallback(() => {
-        // Prepare the order data in the required JSON format
-        const orderData = {
-            email: orderForm.email,
-            phone: orderForm.phone,
-            deliveryAddress: orderForm.address,
-            deliveryLat: 50.4501, // Default coordinates for Kiev
-            deliveryLng: 30.5234, // Default coordinates for Kiev
-            shopId: selectedShop,
-            items: cartItems.map(item => ({
-                FlowerId: item.Id,
-                Quantity: item.quantity
-            })),
-            couponCode: '', // You can add coupon functionality later
-            userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        };
-
-        // Show the order data in alert
-        alert(JSON.stringify(orderData, null, 2));
-        
-        // Log to console for debugging
-        console.log('Order data:', orderData);
-        
-        // Here you would typically send the order to your backend
-        // For now, we'll just show the alert with the order data
-        
-        // Commented out the clearing of cart and form since we're just previewing for now
-        /*
+    const handleOrderSuccess = useCallback(() => {
+        // Clear cart and form after successful order
         setCartItems([]);
         setOrderForm({
             name: '',
@@ -110,9 +84,9 @@ const App: React.FC = () => {
             address: ''
         });
         
+        // Optionally switch back to shop tab
         setActiveTab('shop');
-        */
-    }, [orderForm, cartItems, selectedShop]);
+    }, []);
 
     const getShops = async () => {
         const response = await apiService.get<Shop[]>('/shops');
@@ -193,14 +167,17 @@ const App: React.FC = () => {
                     onAddToCart={addToCart}
                 />
             ) : (
-                <CartPage
-                    cartItems={cartItems}
-                    orderForm={orderForm}
-                    onUpdateQuantity={updateQuantity}
-                    onRemoveFromCart={removeFromCart}
-                    onOrderFormChange={handleOrderFormChange}
-                    onSubmitOrder={handleSubmitOrder}
-                />
+                activeTab === 'cart' && (
+                    <CartPage
+                        cartItems={cartItems}
+                        orderForm={orderForm}
+                        selectedShop={selectedShop}
+                        onUpdateQuantity={updateQuantity}
+                        onRemoveFromCart={removeFromCart}
+                        onOrderFormChange={handleOrderFormChange}
+                        onOrderSuccess={handleOrderSuccess}
+                    />
+                )
             )}
         </div>
     );

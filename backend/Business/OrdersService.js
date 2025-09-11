@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const {v4: uuidv4} = require('uuid');
 const BaseService = require('./BaseService');
 
 class OrdersService extends BaseService {
@@ -7,50 +7,65 @@ class OrdersService extends BaseService {
         this.orderItemsRepo = orderItemsRepo;
         this.flowerRepo = flowerRepo;
         this.couponRepo = couponRepo;
+        this.repository = orderRepo; // Make sure the repository is properly set
     }
 
-    createOrder({email, phone, deliveryAddress, deliveryLat, deliveryLng, shopId, items, couponCode, userTimezone}) {
+
+    createOrder({
+                    Email,
+                    Phone,
+                    DeliveryAddress,
+                    DeliveryLatitude,
+                    DeliveryLongitude,
+                    ShopId,
+                    TotalPrice,
+                    UserTimezone,
+                    CouponCode,
+                    OrderItems
+                }) {
         // Рассчитать общую цену
         let totalPrice = 0;
-        items.forEach(i => {
+        OrderItems.forEach(i => {
             const flower = this.flowerRepo.getById(i.FlowerId);
             if (!flower) throw new Error(`Flower ID ${i.FlowerId} not found`);
             totalPrice += flower.Price * i.Quantity;
         });
 
         // Применить купон
-        if (couponCode) {
-            const coupon = this.couponRepo.getCouponByCode(couponCode);
+        if (CouponCode) {
+            const coupon = this.couponRepo.getCouponByCode(CouponCode);
             if (coupon) totalPrice = totalPrice * (1 - coupon.Discount / 100);
         }
 
         const orderId = uuidv4();
-        this.orderRepo.insert({
+
+
+        this.repository.insert({  // Changed from orderRepo to repository
             Id: orderId,
-            Email: email,
-            Phone: phone,
-            DeliveryAddress: deliveryAddress,
-            DeliveryLatitude: deliveryLat,
-            DeliveryLongitude: deliveryLng,
+            Email: Email,
+            Phone: Phone,
+            DeliveryAddress: DeliveryAddress,
+            DeliveryLatitude: DeliveryLatitude,
+            DeliveryLongitude: DeliveryLongitude,
             ShopId,
-            CouponCode: couponCode || null,
+            CouponCode: CouponCode || null,
             TotalPrice: totalPrice,
-            UserTimezone: userTimezone
+            UserTimezone: UserTimezone
         });
 
         // Добавить позиции заказа
-        items.forEach(i => {
+        OrderItems.forEach(i => {
             this.orderItemsRepo.insert({
                 OrderId: orderId, FlowerId: i.FlowerId, Quantity: i.Quantity
             });
         });
 
-        return this.orderRepo.getOrderWithItems(orderId);
+        return this.repository.getOrderWithItems(orderId);
     }
 
     getOrdersByEmail(email) {
-        const orders = this.orderRepo.getOrdersByEmail(email);
-        return orders.map(o => this.orderRepo.getOrderWithItems(o.Id));
+        const orders = this.repository.getOrdersByEmail(email);
+        return orders.map(o => this.repository.getOrderWithItems(o.Id));
     }
 
     async getById(orderId) {
@@ -68,8 +83,8 @@ class OrdersService extends BaseService {
     applyCoupon(orderId, couponCode) {
         const coupon = this.couponRepo.getCouponByCode(couponCode);
         if (!coupon) throw new Error('Invalid coupon code');
-        this.orderRepo.applyCoupon(orderId, couponCode);
-        return this.orderRepo.getOrderWithItems(orderId);
+        this.repository.applyCoupon(orderId, couponCode);
+        return this.repository.getOrderWithItems(orderId);
     }
 }
 

@@ -13,4 +13,4 @@ class OrderItemsRepository extends GenericRepository {
     }
 }
 
-module.exports = GenericRepository;
+module.exports = OrderItemsRepository;

@@ -8,19 +8,21 @@ import OrderFormComponent from './OrderForm';
 interface CartProps {
     cartItems: CartItemType[];
     orderForm: OrderFormType;
+    selectedShop: number;
     onUpdateQuantity: (id: number, quantity: number) => void;
     onRemoveFromCart: (id: number) => void;
     onOrderFormChange: (field: keyof OrderFormType, value: string) => void;
-    onSubmitOrder: () => void;
+    onOrderSuccess: () => void;
 }
 
 const Cart: React.FC<CartProps> = ({
     cartItems,
     orderForm,
+    selectedShop,
     onUpdateQuantity,
     onRemoveFromCart,
     onOrderFormChange,
-    onSubmitOrder
+    onOrderSuccess
 }) => {
     const getTotalPrice = () => {
         return cartItems.reduce(
@@ -42,13 +44,67 @@ const Cart: React.FC<CartProps> = ({
 
     const isSubmitDisabled = !isFormValid();
 
+    const handleSubmitOrder = async () => {
+        if (isSubmitDisabled) return;
+
+        try {
+            // Prepare the order data in the required JSON format
+            const totalPrice = cartItems.reduce((sum, item) => sum + (item.Price * item.quantity), 0);
+            
+            const orderData = {
+                Email: orderForm.email,
+                Phone: orderForm.phone,
+                DeliveryAddress: orderForm.address,
+                DeliveryLatitude: 50.4501, // Default coordinates for Kiev
+                DeliveryLongitude: 30.5234, // Default coordinates for Kiev
+                ShopId: selectedShop,
+                TotalPrice: totalPrice,
+                UserTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                CouponCode: '', // You can add coupon functionality later
+                OrderItems: cartItems.map(item => ({
+                    FlowerId: item.Id,
+                    Quantity: item.quantity
+                }))
+            };
+
+            console.log('Sending order data:', orderData);
+            
+            // Send the order to the backend
+            const response = await fetch('http://localhost:3000/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Order submitted successfully:', result);
+            
+            // Show success message to user
+            alert('Order submitted successfully!');
+            
+            // Notify parent component about successful order
+            onOrderSuccess();
+            
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            alert(`Failed to submit order: ${errorMessage}`);
+        }
+    };
+
     return (
         <div className="cart-page">
             <div className="cart-container">
                 <OrderFormComponent
                     formData={orderForm}
                     onChange={onOrderFormChange}
-                    onSubmit={onSubmitOrder}
+                    onSubmit={handleSubmitOrder}
                     isSubmitDisabled={isSubmitDisabled}
                 />
 
@@ -72,7 +128,7 @@ const Cart: React.FC<CartProps> = ({
                                 </div>
                                 <button
                                     className="submit-order-btn"
-                                    onClick={onSubmitOrder}
+                                    onClick={handleSubmitOrder}
                                     disabled={isSubmitDisabled}
                                     title={isSubmitDisabled ? 'Please fill in all required fields' : 'Submit order'}
                                 >

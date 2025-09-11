@@ -21,6 +21,9 @@ class OrdersController extends BaseController {
 
     createOrder(req, res) {
         try {
+
+            console.log(req.body)
+
             const order = this.service.createOrder(req.body);
             return this.success(res, order, 201);
         } catch (error) {

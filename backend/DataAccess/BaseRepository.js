@@ -18,6 +18,9 @@ class BaseRepository {
     }
 
     insert(data) {
+        console.log(`BaseRepository insert ${this.tableName}`)
+
+
         const keys = Object.keys(data).join(', ');
         const placeholders = Object.keys(data).map(k => `@${k}`).join(', ');
         const stmt = this.db.prepare(`INSERT INTO ${this.tableName} (${keys})
