@@ -25,7 +25,7 @@ const couponsService = new (require('./Business/CouponService'))(couponsRepo);
 const shopsService = new (require('./Business/ShopsService'))(shopsRepo, flowersRepo);
 const flowersService = new (require('./Business/FlowersService'))(flowersRepo);
 const orderItemsService = new (require('./Business/OrderItemsService'))(orderItemsRepo);
-const ordersService = new (require('./Business/OrdersService'))(ordersRepo, orderItemsRepo, flowersRepo, couponsRepo);
+const ordersService = new (require('./Business/OrdersService'))(ordersRepo, orderItemsRepo, flowersRepo, couponsRepo, shopsRepo);
 
 
 // Initialize controllers

@@ -7,8 +7,18 @@ interface OrderItem {
     OrderId: string;
     FlowerId: number;
     Quantity: number;
-    FlowerName?: string;
-    Price?: number; // This will be populated later if needed
+    name: string;
+    price: number;
+    imageUrl: string;
+    description: string;
+}
+
+interface ShopInfo {
+    Id: number;
+    Name: string;
+    Address: string;
+    Latitude: number;
+    Longitude: number;
 }
 
 interface OrderDetailsType {
@@ -24,6 +34,7 @@ interface OrderDetailsType {
     CreatedAt: string;
     UserTimezone: string;
     items: OrderItem[];
+    shop: ShopInfo;
 }
 
 interface ApiResponse {
@@ -129,8 +140,10 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
 
     return (
         <div className="order-details">
-            <h1>Order Details</h1>
-            <p className="order-number">#{order.Id.substring(0, 8).toUpperCase()}</p>
+            <div className="order-header">
+                <h1>Order Details</h1>
+                <p className="order-number">Order #{order.Id.substring(0, 8).toUpperCase()}</p>
+            </div>
             
             <div className="order-items">
                 <h2>Your Order</h2>
@@ -139,10 +152,29 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                         order.items.map((item) => (
                             <div key={item.Id} className="order-item">
                                 <div className="item-image">
-                                    <div className="image-placeholder">🌹</div>
+                                    <div className="image-placeholder">
+                                        <img 
+                                            src={`/images/${item.imageUrl}`} 
+                                            alt={item.name} 
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                                const placeholder = target.parentElement;
+                                                if (placeholder) {
+                                                    const emoji = document.createElement('span');
+                                                    emoji.textContent = '🌹';
+                                                    placeholder.appendChild(emoji);
+                                                }
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="item-name">Flower #{item.FlowerId}</div>
+                                <div className="item-details">
+                                    <div className="item-name">{item.name}</div>
+                                    <div className="item-description">{item.description}</div>
+                                </div>
                                 <div className="item-quantity">x{item.Quantity}</div>
+                                <div className="item-price">${item.price.toFixed(2)}</div>
                             </div>
                         ))
                     ) : (
@@ -152,17 +184,51 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                 
                 <div className="order-total">
                     <span>Total:</span>
-                    <span className="total-amount">${order.TotalPrice ? order.TotalPrice.toFixed(2) : '0.00'}</span>
+                    <span className="total-amount">${order.TotalPrice.toFixed(2)}</span>
                 </div>
             </div>
             
             <div className="order-info">
-                <h3>Delivery Address:</h3>
-                <p>{order.DeliveryAddress || 'No address provided'}</p>
+                <div className="info-section">
+                    <h3>Contact Information</h3>
+                    <p><strong>Email:</strong> {order.Email}</p>
+                    <p><strong>Phone:</strong> {order.Phone}</p>
+                </div>
+
+                <div className="info-section">
+                    <h3>Delivery Address</h3>
+                    <p>{order.DeliveryAddress}</p>
+                    {order.DeliveryLatitude && order.DeliveryLongitude && (
+                        <p className="coordinates">
+                            (Coordinates: {order.DeliveryLatitude.toFixed(6)}, {order.DeliveryLongitude.toFixed(6)})
+                        </p>
+                    )}
+                </div>
                 
-                <h3>Date:</h3>
-                <p>{order.CreatedAt ? formatDate(order.CreatedAt) : 'N/A'}</p>
+                <div className="info-section">
+                    <h3>Shop Information</h3>
+                    <p><strong>Name:</strong> {order.shop?.Name || 'N/A'}</p>
+                    <p><strong>Address:</strong> {order.shop?.Address || 'N/A'}</p>
+                    {order.shop?.Latitude && order.shop?.Longitude && (
+                        <p className="coordinates">
+                            (Coordinates: {order.shop.Latitude.toFixed(6)}, {order.shop.Longitude.toFixed(6)})
+                        </p>
+                    )}
+                </div>
+                
+                <div className="info-section">
+                    <h3>Order Details</h3>
+                    <p><strong>Order Date:</strong> {formatDate(order.CreatedAt)}</p>
+                    <p><strong>Time Zone:</strong> {order.UserTimezone || 'N/A'}</p>
+                    {order.CouponCode && (
+                        <p><strong>Coupon Used:</strong> {order.CouponCode}</p>
+                    )}
+                </div>
             </div>
+            
+            <button className="back-to-shop" onClick={handleBack}>
+                <img src={backIcon} alt="Back" /> Back to Shop
+            </button>
         </div>
     );
 };

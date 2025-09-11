@@ -40,15 +40,17 @@ class OrdersController extends BaseController {
     }
 
     //USES
-    getOrderById(req, res) {
+    // Получение заказа по ID с детальной информацией о магазине и товарах
+    async getOrderById(req, res) {
         try {
             const {orderId} = req.params;
-            const order = this.service.getById(orderId);
-            if (!order) return this.notFound(res, 'Order not found');
-            this.service.getById(orderId).then(order => {
-                return this.success(res, order);
-            });
+            const order = await this.service.getById(orderId);
+            if (!order) {
+                return this.notFound(res, 'Заказ не найден');
+            }
+            return this.success(res, order);
         } catch (error) {
+            console.error('Ошибка при получении заказа:', error);
             return this.handleError(res, error);
         }
     }

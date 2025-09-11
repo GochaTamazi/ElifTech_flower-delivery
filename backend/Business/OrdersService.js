@@ -2,11 +2,12 @@ const {v4: uuidv4} = require('uuid');
 const BaseService = require('./BaseService');
 
 class OrdersService extends BaseService {
-    constructor(orderRepo, orderItemsRepo, flowerRepo, couponRepo) {
+    constructor(orderRepo, orderItemsRepo, flowerRepo, couponRepo, shopRepo) {
         super(orderRepo);
         this.orderItemsRepo = orderItemsRepo;
         this.flowerRepo = flowerRepo;
         this.couponRepo = couponRepo;
+        this.shopRepo = shopRepo; // Add shop repository
         this.repository = orderRepo; // Make sure the repository is properly set
     }
 
@@ -73,7 +74,43 @@ class OrdersService extends BaseService {
         if (!order) {
             throw new Error('Order not found');
         }
-        return this.getOrderWithItems(orderId);
+        
+        // Get order with items
+        const orderWithItems = await this.getOrderWithItems(orderId);
+        
+        // Get shop information
+        if (order.ShopId) {
+            try {
+                const shop = await this.shopRepo.getById(order.ShopId);
+                orderWithItems.shop = shop;
+            } catch (error) {
+                console.error('Error fetching shop info:', error);
+                orderWithItems.shop = null;
+            }
+        }
+        
+        // Get detailed item information
+        if (orderWithItems.items && orderWithItems.items.length > 0) {
+            try {
+                const itemDetails = await Promise.all(
+                    orderWithItems.items.map(async (item) => {
+                        const flower = await this.flowerRepo.getById(item.FlowerId);
+                        return {
+                            ...item,
+                            name: flower?.Name,
+                            price: flower?.Price,
+                            imageUrl: flower?.ImageUrl,
+                            description: flower?.Description
+                        };
+                    })
+                );
+                orderWithItems.items = itemDetails;
+            } catch (error) {
+                console.error('Error fetching item details:', error);
+            }
+        }
+        
+        return orderWithItems;
     }
 
     async getOrderWithItems(orderId) {
