@@ -19,11 +19,9 @@ class OrdersController extends BaseController {
         return this.router;
     }
 
+    //USES
     createOrder(req, res) {
         try {
-
-            console.log(req.body)
-
             const order = this.service.createOrder(req.body);
             return this.success(res, order, 201);
         } catch (error) {
@@ -44,9 +42,11 @@ class OrdersController extends BaseController {
     getOrderById(req, res) {
         try {
             const {orderId} = req.params;
-            const order = this.service.getOrderById(orderId);
+            const order = this.service.getById(orderId);
             if (!order) return this.notFound(res, 'Order not found');
-            return this.success(res, order);
+            this.service.getById(orderId).then(order => {
+                return this.success(res, order);
+            });
         } catch (error) {
             return this.handleError(res, error);
         }

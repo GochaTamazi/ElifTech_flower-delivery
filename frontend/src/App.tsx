@@ -4,10 +4,12 @@ import apiService from "./api/apiService";
 import { Flower, Shop, CartItem, OrderForm, ShopResponse } from './types';
 import ShopPage from './components/Shop';
 import CartPage from './components/Cart';
+import OrderDetails from './components/OrderDetails';
 
 const App: React.FC = () => {
     // State
-    const [activeTab, setActiveTab] = useState<'shop' | 'cart'>('shop');
+    const [activeTab, setActiveTab] = useState<'shop' | 'cart' | 'order-details'>('shop');
+    const [currentOrderId, setCurrentOrderId] = useState<string>('');
     const [selectedShop, setSelectedShop] = useState<number>(1);
     const [shops, setShops] = useState<Shop[]>([]);
     const [flowers, setFlowers] = useState<Flower[]>([]);
@@ -74,7 +76,8 @@ const App: React.FC = () => {
         }));
     }, []);
 
-    const handleOrderSuccess = useCallback(() => {
+    const handleOrderSuccess = useCallback((orderId: string) => {
+        console.log('handleOrderSuccess called with orderId:', orderId);
         // Clear cart and form after successful order
         setCartItems([]);
         setOrderForm({
@@ -84,8 +87,11 @@ const App: React.FC = () => {
             address: ''
         });
         
-        // Optionally switch back to shop tab
-        setActiveTab('shop');
+        // Set the current order ID and navigate to order details
+        console.log('Setting currentOrderId to:', orderId);
+        setCurrentOrderId(orderId);
+        console.log('Setting activeTab to order-details');
+        setActiveTab('order-details');
     }, []);
 
     const getShops = async () => {
@@ -178,6 +184,28 @@ const App: React.FC = () => {
                         onOrderSuccess={handleOrderSuccess}
                     />
                 )
+            )}
+            {activeTab === 'order-details' && (
+                <>
+                    {console.log('Rendering OrderDetails:', { activeTab, currentOrderId })}
+                    {currentOrderId ? (
+                        <OrderDetails 
+                            orderId={currentOrderId} 
+                            onBackToShop={() => setActiveTab('shop')} 
+                        />
+                    ) : (
+                        <div className="order-details">
+                            <h2>No Order Found</h2>
+                            <p>We couldn't find your order details. Please try again or contact support.</p>
+                            <button 
+                                className="back-to-shop"
+                                onClick={() => setActiveTab('shop')}
+                            >
+                                Back to Shop
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

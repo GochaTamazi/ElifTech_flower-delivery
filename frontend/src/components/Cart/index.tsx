@@ -12,7 +12,7 @@ interface CartProps {
     onUpdateQuantity: (id: number, quantity: number) => void;
     onRemoveFromCart: (id: number) => void;
     onOrderFormChange: (field: keyof OrderFormType, value: string) => void;
-    onOrderSuccess: () => void;
+    onOrderSuccess: (orderId: string) => void;
 }
 
 const Cart: React.FC<CartProps> = ({
@@ -70,26 +70,65 @@ const Cart: React.FC<CartProps> = ({
             console.log('Sending order data:', orderData);
             
             // Send the order to the backend
-            const response = await fetch('http://localhost:3000/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderData)
-            });
+            console.log('Sending order to:', '/orders');
+            console.log('Order data being sent:', JSON.stringify(orderData, null, 2));
+            
+            let response;
+            try {
+                response = await fetch('http://localhost:3000/orders/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server responded with error:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+                }
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                
+                console.log('Order submitted successfully. Full response:', JSON.stringify(result, null, 2));
+                
+                if (!result) {
+                    throw new Error('Empty response from server');
+                }
+                
+                // Предполагаем, что сервер возвращает заказ с полем 'id' или 'Id'
+                const orderId = result.id || result.Id || 
+                              (result.order && (result.order.id || result.order.Id)) ||
+                              (result.data && (result.data.id || result.data.Id));
+                
+                if (orderId) {
+                    console.log('Order ID found in response:', orderId);
+                    // Показываем сообщение об успехе и передаем ID заказа в родительский компонент
+                    onOrderSuccess(String(orderId));
+                } else {
+                    // If we can't find the order ID, try to extract it from the Location header
+                    const locationHeader = response.headers.get('Location');
+                    if (locationHeader) {
+                        const match = locationHeader.match(/\/(\d+)$/);
+                        if (match && match[1]) {
+                            console.log('Extracted order ID from Location header:', match[1]);
+                            onOrderSuccess(match[1]);
+                            return;
+                        }
+                    }
+                    
+                    console.error('No order ID found in response. Full response:', result);
+                    console.log('Response headers:', Object.fromEntries([...response.headers.entries()]));
+                    throw new Error('Order was submitted but no order ID was returned from the server');
+                }
+                
+            } catch (error) {
+                console.error('Error in order submission:', error);
+                throw error; // Re-throw to be caught by the outer try-catch
             }
-
-            const result = await response.json();
-            console.log('Order submitted successfully:', result);
-            
-            // Show success message to user
-            alert('Order submitted successfully!');
-            
-            // Notify parent component about successful order
-            onOrderSuccess();
             
         } catch (error) {
             console.error('Error submitting order:', error);
