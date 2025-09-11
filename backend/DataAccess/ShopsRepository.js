@@ -9,7 +9,7 @@ class ShopsRepository extends GenericRepository {
         const stmt = this.db.prepare(`SELECT f.*
                                       FROM Flowers f
                                       WHERE f.ShopId = ?
-                                      ORDER BY f.IsFavorite DESC, f.DateAdded DESC`);
+                                      ORDER BY f.DateAdded DESC`);
         return stmt.all(shopId);
     }
 }

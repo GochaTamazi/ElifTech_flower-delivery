@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+const cors = require('cors');
+app.use(cors());
+
+
 // Initialize database
 const initDB = require('./Database/initDB');
 const db = require('./Database/db').getInstance();

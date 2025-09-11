@@ -1,57 +1,192 @@
-import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
-import { apiService } from './api/apiService';
+import apiService from "./api/apiService";
+import { Flower, Shop, CartItem, OrderForm, ShopResponse } from './types';
+import ShopPage from './components/Shop';
+///import CartPage from './components/Cart';
 
-interface ApiData {
-  message?: string;
-  // Add other expected properties from your API
-}
+const App: React.FC = () => {
+    // State
+    const [activeTab, setActiveTab] = useState<'shop' | 'cart'>('shop');
+    const [selectedShop, setSelectedShop] = useState<number>(1);
+    const [shops, setShops] = useState<Shop[]>([]);
+    const [flowers, setFlowers] = useState<Flower[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [orderForm, setOrderForm] = useState<OrderForm>({
+        name: '',
+        email: '',
+        phone: '',
+        address: ''
+    });
 
-function App() {
-  const [data, setData] = useState<ApiData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Example API call - replace '/api/endpoint' with your actual API endpoint
-        const response = await apiService.get<ApiData>('/api/endpoint');
-        if (response.error) {
-          setError(response.error);
-        } else {
-          setData(response.data);
-        }
-      } catch (err) {
-        setError('Failed to fetch data from the server');
-        console.error('API Error:', err);
-      } finally {
-        setLoading(false);
-      }
+    // Helper function to validate if an object matches the Flower interface
+    const isValidFlower = (data: any): data is Flower => {
+        return (
+            data &&
+            typeof data.Id === 'number' &&
+            typeof data.ShopId === 'number' &&
+            typeof data.Name === 'string' &&
+            typeof data.Description === 'string' &&
+            typeof data.Price === 'number' &&
+            typeof data.DateAdded === 'string' &&
+            typeof data.ImageUrl === 'string'
+        );
     };
 
-    fetchData();
-  }, []);
+    // Cart functions
+    const addToCart = useCallback((flower: Flower) => {
+        setCartItems(prevItems => {
+            const existingItem = prevItems.find(item => item.Id === flower.Id);
+            if (existingItem) {
+                return prevItems.map(item =>
+                    item.Id === flower.Id 
+                        ? { ...item, quantity: item.quantity + 1 } 
+                        : item
+                );
+            }
+            return [...prevItems, { ...flower, quantity: 1 }];
+        });
+    }, []);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1>Flower Delivery App</h1>
-        {loading ? (
-          <p>Loading data from API...</p>
-        ) : error ? (
-          <p className="error">Error: {error}</p>
-        ) : (
-          <div className="api-response">
-            <h3>API Response:</h3>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
-          </div>
-        )}
-      </header>
-    </div>
-  );
-}
+    const removeFromCart = useCallback((flowerId: number) => {
+        setCartItems(prevItems => 
+            prevItems.filter(item => item.Id !== flowerId)
+        );
+    }, []);
+
+    const updateQuantity = useCallback((flowerId: number, newQuantity: number) => {
+        if (newQuantity < 1) return;
+        
+        setCartItems(prevItems =>
+            prevItems.map(item =>
+                item.Id === flowerId 
+                    ? { ...item, quantity: newQuantity } 
+                    : item
+            )
+        );
+    }, []);
+
+    const handleOrderFormChange = useCallback((field: keyof OrderForm, value: string) => {
+        setOrderForm(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    }, []);
+
+    const handleSubmitOrder = useCallback(() => {
+        // Here you would typically send the order to your backend
+        console.log('Submitting order:', {
+            ...orderForm,
+            items: cartItems,
+            total: cartItems.reduce((sum, item) => sum + (item.Price * item.quantity), 0)
+        });
+        
+        // Clear cart and form after submission
+        setCartItems([]);
+        setOrderForm({
+            name: '',
+            email: '',
+            phone: '',
+            address: ''
+        });
+        
+        // Optionally switch back to shop tab
+        setActiveTab('shop');
+        
+        alert('Order submitted successfully!');
+    }, [orderForm, cartItems]);
+
+    const getShops = async () => {
+        const response = await apiService.get<Shop[]>('/shops');
+        if (response.data) {
+            setShops(response.data);
+        }
+    };
+
+    const fetchFlowers = async (shopId: number) => {
+        try {
+            setIsLoading(true);
+            const response = await apiService.get<ShopResponse>(`/shops/${shopId}`);
+
+            if (!response?.data) {
+                setFlowers([]);
+                console.warn('No data received from API');
+                return;
+            }
+
+            const shopData = response.data;
+            if (Array.isArray(shopData.flowers)) {
+                const validFlowers = shopData.flowers.filter(flower => isValidFlower(flower));
+                if (validFlowers.length !== shopData.flowers.length) {
+                    console.warn('Some flower data is invalid and was filtered out');
+                }
+                setFlowers(validFlowers);
+            } else {
+                console.warn('No valid flowers array found in the response');
+                setFlowers([]);
+            }
+        } catch (error) {
+            console.error('Error fetching flowers:', error);
+            setFlowers([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Load shops and flowers when component mounts or selectedShop changes
+    useEffect(() => {
+        getShops();
+        if (selectedShop) {
+            fetchFlowers(selectedShop);
+        }
+    }, [selectedShop]);
+
+    return (
+        <div className="app">
+            <header className="header">
+                <div className="tabs">
+                    <button
+                        className={`tab ${activeTab === 'shop' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('shop')}
+                    >
+                        Shop
+                    </button>
+                    <button
+                        className={`tab ${activeTab === 'cart' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('cart')}
+                    >
+                        Shopping Cart {cartItems.length > 0 && `(${cartItems.length})`}
+                    </button>
+                </div>
+
+                <div className="sort-options">
+                    <button className="sort-btn">Sort by price</button>
+                    <button className="sort-btn">Sort by date</button>
+                </div>
+            </header>
+
+            {activeTab === 'shop' ? (
+                <ShopPage 
+                    shops={shops}
+                    selectedShop={selectedShop}
+                    flowers={flowers}
+                    isLoading={isLoading}
+                    onSelectShop={setSelectedShop}
+                    onAddToCart={addToCart}
+                />
+            ) : (""
+                /*<CartPage
+                    cartItems={cartItems}
+                    orderForm={orderForm}
+                    onUpdateQuantity={updateQuantity}
+                    onRemoveFromCart={removeFromCart}
+                    onOrderFormChange={handleOrderFormChange}
+                    onSubmitOrder={handleSubmitOrder}
+                />*/
+            )}
+        </div>
+    );
+};
 
 export default App;

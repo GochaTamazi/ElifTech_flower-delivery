@@ -49,12 +49,11 @@ class ShopsService extends BaseService {
     /**
      * Get all shops with their flowers (for backward compatibility)
      */
-    getAllShopsWithFlowers({ sortBy = 'DateAdded', favoritesFirst = true, page = 1, pageSize = 10 } = {}) {
+    getAllShopsWithFlowers({ sortBy = 'DateAdded', page = 1, pageSize = 10 } = {}) {
         const shops = this.getAllShops({ page, pageSize });
         shops.forEach(shop => {
             shop.flowers = this.flowerRepo.getFlowersByShop(shop.Id, {
-                sortBy, 
-                favoritesFirst, 
+                sortBy,
                 limit: pageSize, 
                 offset: (page - 1) * pageSize
             });
@@ -62,12 +61,6 @@ class ShopsService extends BaseService {
         return shops;
     }
 
-    /**
-     * Mark a flower as favorite
-     */
-    markFlowerFavorite(flowerId, isFavorite) {
-        return this.flowerRepo.markFavorite(flowerId, isFavorite);
-    }
 }
 
 module.exports = ShopsService;

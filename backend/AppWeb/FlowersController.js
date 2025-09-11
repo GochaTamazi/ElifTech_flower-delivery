@@ -9,8 +9,6 @@ class FlowersController extends BaseController {
     }
 
     initializeRoutes() {
-        // Mark flower as favorite
-        this.router.post('/:flowerId/favorite', this.markFavorite.bind(this));
         // Get flowers by shop
         this.router.get('/shop/:shopId', this.getFlowersByShop.bind(this));
         // Get all flowers with shop info
@@ -27,24 +25,12 @@ class FlowersController extends BaseController {
         return this.router;
     }
 
-    async markFavorite(req, res) {
-        try {
-            const { flowerId } = req.params;
-            const { isFavorite } = req.body;
-            const updated = await this.service.markFavorite(flowerId, isFavorite);
-            res.json({ success: !!updated });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
-
     async getFlowersByShop(req, res) {
         try {
             const { shopId } = req.params;
-            const { sortBy, favoritesFirst, page, pageSize } = req.query;
+            const { sortBy, page, pageSize } = req.query;
             const flowers = await this.service.getFlowersByShop(shopId, {
                 sortBy,
-                favoritesFirst: favoritesFirst === 'true',
                 page: parseInt(page) || 1,
                 pageSize: parseInt(pageSize) || 10
             });
@@ -56,10 +42,9 @@ class FlowersController extends BaseController {
 
     async getAllShops(req, res) {
         try {
-            const { sortBy, favoritesFirst, page, pageSize } = req.query;
+            const { sortBy, page, pageSize } = req.query;
             const shops = await this.service.getAllShopsWithFlowers({
                 sortBy,
-                favoritesFirst: favoritesFirst === 'true',
                 page: parseInt(page) || 1,
                 pageSize: parseInt(pageSize) || 10
             });
