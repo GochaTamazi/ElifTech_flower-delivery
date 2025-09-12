@@ -62,9 +62,6 @@ class FlowersController extends BaseController {
     //Uses
     async getFlowersByShop(req, res) {
         console.log(req.query);
-        console.log(req.params);
-        console.log(req.body);
-
         //http://localhost:3000/flowers/shop/1?sortBy=DateAdded&sortOrder=DESC&page=1&pageSize=10
 
         try {

@@ -111,13 +111,15 @@ const App: React.FC = () => {
         try {
             setIsLoading(true);
 
+            // Convert sortBy to match backend field names if needed
+            const sortField = sortBy === 'price' ? 'Price' : 'DateAdded';
+            const sortDir = sortOrder.toUpperCase();
+            const page = 1;
+            const pageSize = 50; // Increased page size to show more items
 
-            let sortBy = "DateAdded"
-            let sortOrder = "DESC";
-            let page = 1;
-            let pageSize = 10;
-
-            const response = await apiService.get<ShopResponse>(`/flowers/shop/${shopId}?sortBy=${sortBy}&sortOrder=${sortOrder}&page=${page}&pageSize=${pageSize}`);
+            const response = await apiService.get<ShopResponse>(
+                `/flowers/shop/${shopId}?sortBy=${sortField}&sortOrder=${sortDir}&page=${page}&pageSize=${pageSize}`
+            );
 
             if (!response?.data) {
                 setFlowers([]);
@@ -125,7 +127,7 @@ const App: React.FC = () => {
                 return;
             }
 
-            console.log(response.data)
+            console.log('Fetched flowers:', response.data);
 
             const shopData = response.data;
             if (Array.isArray(shopData)) {
@@ -176,11 +178,17 @@ const App: React.FC = () => {
                     <button
                         className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
                         onClick={() => {
-                            if (sortBy === 'price') {
-                                setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-                            } else {
-                                setSortBy('price');
-                                setSortOrder('asc');
+                            const newSortBy = 'price';
+                            const newSortOrder = sortBy === 'price'
+                                ? (sortOrder === 'asc' ? 'desc' : 'asc')
+                                : 'asc';
+                            
+                            setSortBy(newSortBy);
+                            setSortOrder(newSortOrder);
+                            
+                            // Trigger data refetch with new sort parameters
+                            if (selectedShop) {
+                                fetchFlowers(selectedShop);
                             }
                         }}
                     >
@@ -189,11 +197,17 @@ const App: React.FC = () => {
                     <button
                         className={`sort-btn ${sortBy === 'date' ? 'active' : ''}`}
                         onClick={() => {
-                            if (sortBy === 'date') {
-                                setSortOrder((prev: SortOrder) => prev === 'asc' ? 'desc' : 'asc');
-                            } else {
-                                setSortBy('date');
-                                setSortOrder('asc');
+                            const newSortBy = 'date';
+                            const newSortOrder = sortBy === 'date'
+                                ? (sortOrder === 'asc' ? 'desc' : 'asc')
+                                : 'asc';
+                            
+                            setSortBy(newSortBy);
+                            setSortOrder(newSortOrder);
+                            
+                            // Trigger data refetch with new sort parameters
+                            if (selectedShop) {
+                                fetchFlowers(selectedShop);
                             }
                         }}
                     >
