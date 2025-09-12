@@ -3,7 +3,6 @@ class UsersFavoritesService {
         this.usersFavoritesRepository = usersFavoritesRepository;
     }
 
-    // Добавить цветок в избранное
     async addToFavorites(userId, flowerId) {
         try {
             if (!userId || !flowerId) {
@@ -16,7 +15,6 @@ class UsersFavoritesService {
         }
     }
 
-    // Удалить цветок из избранного
     async removeFromFavorites(userId, flowerId) {
         try {
             if (!userId || !flowerId) {
@@ -29,20 +27,6 @@ class UsersFavoritesService {
         }
     }
 
-    // Проверить, находится ли цветок в избранном
-    async isFavorite(userId, flowerId) {
-        try {
-            if (!userId || !flowerId) {
-                return false;
-            }
-            return await this.usersFavoritesRepository.GetOne(userId, flowerId);
-        } catch (error) {
-            console.error('Ошибка при проверке избранного:', error);
-            return false;
-        }
-    }
-
-    // Получить все избранные цветы пользователя
     async getUserFavorites(userId) {
         try {
             if (!userId) {
@@ -54,7 +38,6 @@ class UsersFavoritesService {
             throw error;
         }
     }
-
 }
 
 module.exports = UsersFavoritesService;

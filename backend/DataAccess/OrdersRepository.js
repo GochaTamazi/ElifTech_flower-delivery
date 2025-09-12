@@ -5,14 +5,6 @@ class OrdersRepository extends GenericRepository {
         super(db, 'Orders');
     }
 
-    getOrdersByEmail(email) {
-        const stmt = this.db.prepare(`SELECT *
-                                      FROM Orders
-                                      WHERE Email = ?
-                                      ORDER BY CreatedAt DESC`);
-        return stmt.all(email);
-    }
-
     getOrderWithItems(orderId) {
         const order = this.getById(orderId);
         if (!order) return null;
@@ -22,13 +14,6 @@ class OrdersRepository extends GenericRepository {
                                       WHERE OrderId = ?`);
         order.items = stmt.all(orderId);
         return order;
-    }
-
-    applyCoupon(orderId, code) {
-        const stmt = this.db.prepare(`UPDATE Orders
-                                      SET CouponCode = ?
-                                      WHERE Id = ?`);
-        return stmt.run(code, orderId).changes;
     }
 }
 
