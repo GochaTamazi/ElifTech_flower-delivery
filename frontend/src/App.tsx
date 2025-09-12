@@ -6,11 +6,16 @@ import ShopPage from './components/Shop';
 import CartPage from './components/Cart';
 import OrderDetails from './components/OrderDetails';
 
+type SortBy = 'price' | 'date' | null;
+type SortOrder = 'asc' | 'desc';
+
 const App: React.FC = () => {
     // State
     const [activeTab, setActiveTab] = useState<'shop' | 'cart' | 'order-details'>('shop');
     const [currentOrderId, setCurrentOrderId] = useState<string>('');
     const [selectedShop, setSelectedShop] = useState<number>(1);
+    const [sortBy, setSortBy] = useState<SortBy>(null);
+    const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
     const [shops, setShops] = useState<Shop[]>([]);
     const [flowers, setFlowers] = useState<Flower[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -158,8 +163,32 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="sort-options">
-                    <button className="sort-btn">Sort by price</button>
-                    <button className="sort-btn">Sort by date</button>
+                    <button 
+                        className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
+                        onClick={() => {
+                            if (sortBy === 'price') {
+                                setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+                            } else {
+                                setSortBy('price');
+                                setSortOrder('asc');
+                            }
+                        }}
+                    >
+                        Sort by price {sortBy === 'price' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+                    </button>
+                    <button 
+                        className={`sort-btn ${sortBy === 'date' ? 'active' : ''}`}
+                        onClick={() => {
+                            if (sortBy === 'date') {
+                                setSortOrder((prev: SortOrder) => prev === 'asc' ? 'desc' : 'asc');
+                            } else {
+                                setSortBy('date');
+                                setSortOrder('asc');
+                            }
+                        }}
+                    >
+                        Sort by date {sortBy === 'date' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+                    </button>
                 </div>
             </header>
 
@@ -169,6 +198,8 @@ const App: React.FC = () => {
                     selectedShop={selectedShop}
                     flowers={flowers}
                     isLoading={isLoading}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
                     onSelectShop={setSelectedShop}
                     onAddToCart={addToCart}
                 />

@@ -9,6 +9,8 @@ interface ShopProps {
     selectedShop: number;
     flowers: Flower[];
     isLoading: boolean;
+    sortBy: 'price' | 'date' | null;
+    sortOrder: 'asc' | 'desc';
     onSelectShop: (id: number) => void;
     onAddToCart: (flower: Flower) => void;
 }
@@ -18,6 +20,8 @@ const Shop: React.FC<ShopProps> = ({
     selectedShop,
     flowers,
     isLoading,
+    sortBy,
+    sortOrder,
     onSelectShop,
     onAddToCart
 }) => {
@@ -36,6 +40,8 @@ const Shop: React.FC<ShopProps> = ({
                 <ProductList 
                     flowers={flowers}
                     isLoading={isLoading}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
                     onAddToCart={onAddToCart}
                 />
             </main>
