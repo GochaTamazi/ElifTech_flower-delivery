@@ -174,46 +174,48 @@ const App: React.FC = () => {
                     </button>
                 </div>
 
-                <div className="sort-options">
-                    <button
-                        className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
-                        onClick={() => {
-                            const newSortBy = 'price';
-                            const newSortOrder = sortBy === 'price'
-                                ? (sortOrder === 'asc' ? 'desc' : 'asc')
-                                : 'asc';
+                {activeTab === 'shop' && (
+                    <div className="sort-options">
+                        <button
+                            className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
+                            onClick={() => {
+                                const newSortBy = 'price';
+                                const newSortOrder = sortBy === 'price'
+                                    ? (sortOrder === 'asc' ? 'desc' : 'asc')
+                                    : 'asc';
                             
-                            setSortBy(newSortBy);
-                            setSortOrder(newSortOrder);
+                                setSortBy(newSortBy);
+                                setSortOrder(newSortOrder);
                             
-                            // Trigger data refetch with new sort parameters
-                            if (selectedShop) {
-                                fetchFlowers(selectedShop);
-                            }
-                        }}
-                    >
-                        Sort by price {sortBy === 'price' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                    </button>
-                    <button
-                        className={`sort-btn ${sortBy === 'date' ? 'active' : ''}`}
-                        onClick={() => {
-                            const newSortBy = 'date';
-                            const newSortOrder = sortBy === 'date'
-                                ? (sortOrder === 'asc' ? 'desc' : 'asc')
-                                : 'asc';
+                                // Trigger data refetch with new sort parameters
+                                if (selectedShop) {
+                                    fetchFlowers(selectedShop);
+                                }
+                            }}
+                        >
+                            Sort by price {sortBy === 'price' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+                        </button>
+                        <button
+                            className={`sort-btn ${sortBy === 'date' ? 'active' : ''}`}
+                            onClick={() => {
+                                const newSortBy = 'date';
+                                const newSortOrder = sortBy === 'date'
+                                    ? (sortOrder === 'asc' ? 'desc' : 'asc')
+                                    : 'asc';
                             
-                            setSortBy(newSortBy);
-                            setSortOrder(newSortOrder);
+                                setSortBy(newSortBy);
+                                setSortOrder(newSortOrder);
                             
-                            // Trigger data refetch with new sort parameters
-                            if (selectedShop) {
-                                fetchFlowers(selectedShop);
-                            }
-                        }}
-                    >
-                        Sort by date {sortBy === 'date' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-                    </button>
-                </div>
+                                // Trigger data refetch with new sort parameters
+                                if (selectedShop) {
+                                    fetchFlowers(selectedShop);
+                                }
+                            }}
+                        >
+                            Sort by date {sortBy === 'date' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+                        </button>
+                    </div>
+                )}
             </header>
 
             {activeTab === 'shop' ? (
