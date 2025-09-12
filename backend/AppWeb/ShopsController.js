@@ -25,6 +25,16 @@ class ShopsController {
      * Get all flower shops with optional pagination
      */
     async getAllShops(req, res) {
+
+
+        console.log('Session ID:', req.sessionID);
+        console.log('Session data:', req.session);
+        console.log('Cookies:', req.cookies);
+        //console.log('Cookies:', req.headers);
+
+
+
+
         console.log("getAllShops")
         try {
             const {page = 1, pageSize = 2} = req.query;

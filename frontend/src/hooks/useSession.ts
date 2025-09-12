@@ -1,82 +1,143 @@
 // src/hooks/useSession.ts
-import {useEffect, useState, useCallback} from 'react';
+import { useEffect, useState, useCallback } from 'react';
+
+interface SessionResponse {
+    success: boolean;
+    data: {
+        userId: string;
+        sessionId: string;
+        isNew?: boolean;
+        isAuthenticated?: boolean;
+    };
+}
 
 interface UseSessionReturn {
     userId: string | null;
+    sessionId: string | null;
+    isAuthenticated: boolean;
     isLoading: boolean;
-    setUserId: (id: string | null) => void;
-    setIsLoading: (loading: boolean) => void;
+    error: Error | null;
+    refreshSession: () => Promise<void>;
 }
 
+const SESSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
 export const useSession = (): UseSessionReturn => {
-    const [userId, setUserIdState] = useState<string | null>(null);
-    const [isLoading, setIsLoadingState] = useState<boolean>(true);
+    const [sessionData, setSessionData] = useState<{
+        userId: string | null;
+        sessionId: string | null;
+        isAuthenticated: boolean;
+    }>({ 
+        userId: null, 
+        sessionId: null, 
+        isAuthenticated: false 
+    });
+    
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<Error | null>(null);
 
-    // Function to generate a random user ID
-    const generateUserId = useCallback((): string => {
-        return 'user_' + Math.random().toString(36).substr(2, 9);
-    }, []);
-
-    // Get or create user ID
-    const getOrCreateUserId = useCallback((): string => {
-        let id = localStorage.getItem('userId');
-        if (!id) {
-            id = generateUserId();
-            localStorage.setItem('userId', id);
-        }
-        return id;
-    }, [generateUserId]);
-
-    // Register session on the server
-    const registerSession = useCallback(async (id: string) => {
+    // Initialize or check session
+    const initOrCheckSession = useCallback(async (): Promise<SessionResponse['data'] | null> => {
         try {
-            await fetch('/api/session/register', {
+            // First, try to check existing session
+            const checkResponse = await fetch('http://localhost:3000/session/check', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (checkResponse.ok) {
+                const { data } = await checkResponse.json() as SessionResponse;
+                return data;
+            }
+
+            // If no valid session, initialize a new one
+            const initResponse = await fetch('http://localhost:3000/session/init', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
-                body: JSON.stringify({ userId: id }),
+                body: JSON.stringify({
+                    userAgent: window.navigator.userAgent,
+                    timestamp: new Date().toISOString(),
+                }),
+                credentials: 'include',
             });
+
+            if (!initResponse.ok) {
+                throw new Error(`Failed to initialize session: ${initResponse.statusText}`);
+            }
+
+            const { data } = await initResponse.json() as SessionResponse;
+            return data;
         } catch (error) {
-            console.error('Session registration error:', error);
+            console.error('Session error:', error);
+            throw error;
         }
     }, []);
 
-    // Set user ID with type safety
-    const setUserId = useCallback((id: string | null) => {
-        setUserIdState(id);
-        if (id) {
-            localStorage.setItem('userId', id);
-        } else {
-            localStorage.removeItem('userId');
+    // Refresh session data
+    const refreshSession = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const data = await initOrCheckSession();
+            if (data) {
+                setSessionData({
+                    userId: data.userId,
+                    sessionId: data.sessionId,
+                    isAuthenticated: data.isAuthenticated ?? false,
+                });
+                setError(null);
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err : new Error('Failed to refresh session'));
+        } finally {
+            setIsLoading(false);
         }
-    }, []);
+    }, [initOrCheckSession]);
 
-    // Set loading state
-    const setIsLoading = useCallback((loading: boolean) => {
-        setIsLoadingState(loading);
-    }, []);
-
+    // Initialize session on mount
     useEffect(() => {
-        const initializeSession = async () => {
+        let isMounted = true;
+        let checkInterval: NodeJS.Timeout;
+
+        const initialize = async () => {
             try {
-                const id = getOrCreateUserId();
-                setUserId(id);
-                await registerSession(id);
+                await refreshSession();
+                
+                // Set up periodic session check
+                checkInterval = setInterval(async () => {
+                    if (isMounted) {
+                        await refreshSession();
+                    }
+                }, SESSION_CHECK_INTERVAL);
             } catch (error) {
-                console.error('Error initializing session:', error);
-            } finally {
-                setIsLoading(false);
+                if (isMounted) {
+                    setError(error instanceof Error ? error : new Error('Session initialization failed'));
+                    setIsLoading(false);
+                }
             }
         };
 
-        initializeSession();
-    }, [getOrCreateUserId, registerSession, setUserId, setIsLoading]);
+        initialize();
+
+        return () => {
+            isMounted = false;
+            if (checkInterval) {
+                clearInterval(checkInterval);
+            }
+        };
+    }, [refreshSession]);
 
     return {
-        userId,
+        userId: sessionData.userId,
+        sessionId: sessionData.sessionId,
+        isAuthenticated: sessionData.isAuthenticated,
         isLoading,
-        setUserId,
-        setIsLoading
+        error,
+        refreshSession,
     };
 };

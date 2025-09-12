@@ -2,8 +2,42 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-const cors = require('cors');
-app.use(cors());
+// Enable CORS for all routes
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+
+// Подключаем middleware для работы с куками
+app.use(cookieParser());
+
+// Настройка сессий
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000
+    },
+    name: 'sessionId'
+}));
+
+
+
 
 
 // Initialize database
@@ -35,6 +69,8 @@ const ordersController = new (require('./AppWeb/OrdersController'))(ordersServic
 const orderItemsController = new (require('./AppWeb/OrderItemsController'))(orderItemsService);
 const couponsController = new (require('./AppWeb/CouponsController'))(couponsService);
 
+const SessionController = require('./AppWeb/SessionController');
+const sessionController = new SessionController();
 
 // Setup routes
 app.use('/shops', shopsController.getRouter());
@@ -42,6 +78,9 @@ app.use('/flowers', flowersController.getRouter());
 app.use('/orders', ordersController.getRouter());
 app.use('/order-items', orderItemsController.getRouter());
 app.use('/coupons', couponsController.getRouter());
+
+// Подключение контроллера сессий
+app.use('/session', sessionController.getRouter());
 
 
 // Error handling middleware
