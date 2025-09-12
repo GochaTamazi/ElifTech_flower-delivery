@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Flower} from '../../types';
 import './ProductCard.css';
 
@@ -8,6 +8,14 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
+    const [isFavorite, setIsFavorite] = useState(false);
+    
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const newFavoriteState = !isFavorite;
+        setIsFavorite(newFavoriteState);
+        alert(`Цветок "${flower.Name}" ${newFavoriteState ? 'добавлен в' : 'удалён из'} избранное`);
+    };
     return (
         <div className="product-card" title={flower.Description}>
             <div className="flower-image">
@@ -15,7 +23,13 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
                     src={`/images/${flower.ImageUrl}`}
                     alt={flower.Name}
                 />
-                <button className="favorite-btn">❤</button>
+                <button 
+                    className={`favorite-btn ${isFavorite ? 'favorite-active' : ''}`}
+                    onClick={handleFavoriteClick}
+                    aria-label={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
+                >
+                    ❤
+                </button>
             </div>
 
 
