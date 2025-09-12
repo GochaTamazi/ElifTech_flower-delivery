@@ -1,37 +1,87 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Flower } from '../../types';
 import './ProductCard.css';
 import { useSession } from '../../hooks/useSession';
+
+const API_BASE_URL = 'http://localhost:3000';
 
 interface ProductCardProps {
     flower: Flower;
     onAddToCart: (flower: Flower) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ flower, onAddToCart }) => {
     const [isFavorite, setIsFavorite] = useState(false);
-    
+    const [isLoading, setIsLoading] = useState(false);
     const { userId } = useSession();
-    
+
+    // Функция для обработки добавления в избранное
+    const handleAddToFavorites = async (flowerId: number) => {
+        if (!userId) {
+            alert('Пожалуйста, авторизуйтесь, чтобы добавлять в избранное');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/favorites/${flowerId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                throw new Error('Не удалось добавить в избранное');
+            }
+
+            setIsFavorite(true);
+        } catch (error) {
+            console.error('Ошибка при добавлении в избранное:', error);
+            setIsFavorite(false);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Функция для обработки удаления из избранного
+    const handleRemoveFromFavorites = async (favoriteId: number) => {
+        if (!userId) return;
+
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/favorites/${favoriteId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                throw new Error('Не удалось удалить из избранного');
+            }
+
+            setIsFavorite(false);
+        } catch (error) {
+            console.error('Ошибка при удалении из избранного:', error);
+            setIsFavorite(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Обработчик клика по кнопке избранного
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const newFavoriteState = !isFavorite;
-        setIsFavorite(newFavoriteState);
         
-        // Генерируем случайный ID, если нет сессии
-        const getRandomUserId = () => {
-            return 'user_' + Math.floor(Math.random() * 1000000);
-        };
-
-        // Формируем JSON с данными
-        const favoriteData = {
-            UserID: userId || getRandomUserId(),
-            FlowerID: flower.Id,
-            Favorite: newFavoriteState ? 1 : 0
-        };
+        if (isLoading) return;
         
-        // Выводим JSON в alert
-        alert(JSON.stringify(favoriteData, null, 2));
+        if (isFavorite) {
+            // Здесь нужно получить ID записи в избранном, если он у вас есть
+            // Показываю пример с flower.Id, но вам нужно использовать правильный ID записи
+            handleRemoveFromFavorites(flower.Id);
+        } else {
+            handleAddToFavorites(flower.Id);
+        }
     };
     return (
         <div className="product-card" title={flower.Description}>

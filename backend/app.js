@@ -8,6 +8,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Expose-Headers', 'Set-Cookie');
 
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
@@ -27,8 +28,9 @@ app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
-        secure: false,
+        secure: false, // true если используете HTTPS
         httpOnly: true,
         sameSite: 'lax',
         maxAge: 12 * 31 * 24 * 60 * 60 * 1000

@@ -35,7 +35,7 @@ class UsersFavoritesService {
             if (!userId || !flowerId) {
                 return false;
             }
-            return await this.usersFavoritesRepository.isFavorite(userId, flowerId);
+            return await this.usersFavoritesRepository.GetOne(userId, flowerId);
         } catch (error) {
             console.error('Ошибка при проверке избранного:', error);
             return false;

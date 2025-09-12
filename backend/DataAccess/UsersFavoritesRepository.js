@@ -1,21 +1,46 @@
 const GenericRepository = require('./BaseRepository');
+const e = require("express");
 
 class UsersFavoritesRepository extends GenericRepository {
     constructor(db) {
         super(db, 'UsersFavorites');
     }
 
-    // Создать или обновить запись в избранном
+    // Добавить в избранное
     async addToFavorites(userId, flowerId) {
-        const stmt = this.db.prepare(`INSERT OR
-                                      REPLACE
-                                      INTO ${this.tableName} (UserId, FlowerId, IsFavorite)
-                                      VALUES (?, ?, 1)`);
-        return stmt.run(userId, flowerId);
+        console.log(`addToFavorites ${userId} ${flowerId}`)
+        // Сначала проверяем, есть ли уже такая запись
+        const exists = await this.GetOne(userId, flowerId);
+
+        console.log(exists)
+        
+        if (exists) {
+            console.log(`exists ${userId} ${flowerId}`)
+            // Если уже есть, просто обновляем IsFavorite на 1
+            const stmt = this.db.prepare(`
+                UPDATE ${this.tableName} 
+                SET IsFavorite = 1 
+                WHERE UserId = ? AND FlowerId = ?
+            `);
+            return stmt.run(userId, flowerId);
+        } else {
+            console.log(`not exists ${userId} ${flowerId}`)
+            // Если нет, добавляем новую запись
+            const stmt = this.db.prepare(`
+                INSERT INTO ${this.tableName} (UserId, FlowerId, IsFavorite)
+                SELECT ?, ?, 1
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM ${this.tableName} 
+                    WHERE UserId = ? AND FlowerId = ?
+                )
+            `);
+            return stmt.run(userId, flowerId, userId, flowerId);
+        }
     }
 
     // Удалить из избранного (установить IsFavorite в 0)
     async removeFromFavorites(userId, flowerId) {
+        console.log(`removeFromFavorites ${userId} ${flowerId}`)
         const stmt = this.db.prepare(`UPDATE ${this.tableName}
                                       SET IsFavorite = 0
                                       WHERE UserId = ?
@@ -24,13 +49,13 @@ class UsersFavoritesRepository extends GenericRepository {
     }
 
     // Проверить, находится ли цветок в избранном
-    async isFavorite(userId, flowerId) {
-        const stmt = this.db.prepare(`SELECT IsFavorite
-                                      FROM ${this.tableName}
-                                      WHERE UserId = ?
-                                        AND FlowerId = ?`);
+    async GetOne(userId, flowerId) {
+        console.log(`isFavorite ${userId} ${flowerId}`)
+        const stmt = this.db.prepare(`SELECT IsFavorite 
+                                     FROM ${this.tableName} 
+                                     WHERE UserId = ? AND FlowerId = ?`);
         const result = stmt.get(userId, flowerId);
-        return result ? result.IsFavorite === 1 : false;
+        return result;
     }
 
 

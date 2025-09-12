@@ -25,6 +25,9 @@ class UsersFavoritesController extends BaseController {
         try {
             const userId = req.session.userId;
             const flowerId = parseInt(req.params.flowerId);
+
+            console.log(userId)
+            console.log(flowerId)
             
             if (!userId) {
                 return this.unauthorized(res, 'Требуется авторизация');
@@ -34,7 +37,7 @@ class UsersFavoritesController extends BaseController {
                 return this.badRequest(res, 'Некорректный ID цветка');
             }
 
-            await this.usersFavoritesService.addToFavorites(userId, flowerId);
+            await this.service.addToFavorites(userId, flowerId);
             return this.success(res, { isFavorite: true });
         } catch (error) {
             console.error('Ошибка при добавлении в избранное:', error);
@@ -46,7 +49,7 @@ class UsersFavoritesController extends BaseController {
     async removeFromFavorites(req, res) {
         try {
             const userId = req.session.userId;
-            const flowerId = parseInt(req.params.flowerId);
+            const flowerId = parseInt(req.params.id);
             
             if (!userId) {
                 return this.unauthorized(res, 'Требуется авторизация');
@@ -56,7 +59,7 @@ class UsersFavoritesController extends BaseController {
                 return this.badRequest(res, 'Некорректный ID цветка');
             }
 
-            await this.usersFavoritesService.removeFromFavorites(userId, flowerId);
+            await this.service.removeFromFavorites(userId, flowerId);
             return this.success(res, { isFavorite: false });
         } catch (error) {
             console.error('Ошибка при удалении из избранного:', error);
@@ -78,7 +81,7 @@ class UsersFavoritesController extends BaseController {
                 return this.badRequest(res, 'Некорректный ID цветка');
             }
 
-            const isFavorite = await this.usersFavoritesService.isFavorite(userId, flowerId);
+            const isFavorite = await this.session.GetOne(userId, flowerId);
             return this.success(res, { isFavorite });
         } catch (error) {
             console.error('Ошибка при проверке статуса избранного:', error);
