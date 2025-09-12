@@ -54,6 +54,7 @@ class UsersFavoritesService {
             throw error;
         }
     }
+
 }
 
 module.exports = UsersFavoritesService;

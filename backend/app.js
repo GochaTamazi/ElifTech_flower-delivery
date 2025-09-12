@@ -49,6 +49,7 @@ const shopsRepo = new (require('./DataAccess/ShopsRepository'))(db);
 const flowersRepo = new (require('./DataAccess/FlowersRepository'))(db);
 const ordersRepo = new (require('./DataAccess/OrdersRepository'))(db);
 const orderItemsRepo = new (require('./DataAccess/OrderItemsRepository'))(db);
+const usersFavoritesRepo = new (require('./DataAccess/UsersFavoritesRepository'))(db);
 
 
 // Initialize services
@@ -59,12 +60,16 @@ const orderItemsService = new (require('./Business/OrderItemsService'))(orderIte
 const ordersService = new (require('./Business/OrdersService'))(ordersRepo, orderItemsRepo, flowersRepo, couponsRepo, shopsRepo);
 
 
+// Initialize services
+const usersFavoritesService = new (require('./Business/UsersFavoritesService'))(usersFavoritesRepo);
+
 // Initialize controllers
 const shopsController = new (require('./AppWeb/ShopsController'))(shopsService);
 const flowersController = new (require('./AppWeb/FlowersController'))(flowersService);
 const ordersController = new (require('./AppWeb/OrdersController'))(ordersService);
 const orderItemsController = new (require('./AppWeb/OrderItemsController'))(orderItemsService);
 const couponsController = new (require('./AppWeb/CouponsController'))(couponsService);
+const usersFavoritesController = new (require('./AppWeb/UsersFavoritesController'))(usersFavoritesService);
 
 const SessionController = require('./AppWeb/SessionController');
 const sessionController = new SessionController();
@@ -75,6 +80,7 @@ app.use('/flowers', flowersController.getRouter());
 app.use('/orders', ordersController.getRouter());
 app.use('/order-items', orderItemsController.getRouter());
 app.use('/coupons', couponsController.getRouter());
+app.use('/favorites', usersFavoritesController.getRouter());
 
 // Подключение контроллера сессий
 app.use('/session', sessionController.getRouter());

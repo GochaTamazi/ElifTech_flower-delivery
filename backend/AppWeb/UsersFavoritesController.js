@@ -1,18 +1,24 @@
+const express = require('express');
 const BaseController = require('./BaseController');
 
 class UsersFavoritesController extends BaseController {
-    constructor(usersFavoritesService) {
-        super();
-        this.usersFavoritesService = usersFavoritesService;
+    constructor(service) {
+        super(service);
+        this.router = express.Router();
         this.initializeRoutes();
     }
 
     initializeRoutes() {
         this.router.post('/:flowerId', this.addToFavorites.bind(this));
-        this.router.delete('/:flowerId', this.removeFromFavorites.bind(this));
+        this.router.delete('/:id', this.removeFromFavorites.bind(this));
         this.router.get('/check/:flowerId', this.checkFavoriteStatus.bind(this));
         this.router.get('/', this.getUserFavorites.bind(this));
     }
+
+    getRouter() {
+        return this.router;
+    }
+
 
     // Добавить в избранное
     async addToFavorites(req, res) {
@@ -84,12 +90,13 @@ class UsersFavoritesController extends BaseController {
     async getUserFavorites(req, res) {
         try {
             const userId = req.session.userId;
+            console.log(userId)
             
             if (!userId) {
                 return this.unauthorized(res, 'Требуется авторизация');
             }
 
-            const favorites = await this.usersFavoritesService.getUserFavorites(userId);
+            const favorites = await this.service.getUserFavorites(userId);
             return this.success(res, favorites);
         } catch (error) {
             console.error('Ошибка при получении избранного:', error);

@@ -32,6 +32,17 @@ class UsersFavoritesRepository extends GenericRepository {
         const result = stmt.get(userId, flowerId);
         return result ? result.IsFavorite === 1 : false;
     }
+
+
+    // Получить все избранные цветы пользователя
+    async getUserFavorites(userId) {
+        const stmt = this.db.prepare(`SELECT FlowerId
+                                      FROM ${this.tableName}
+                                      WHERE UserId = ?
+                                        AND IsFavorite = 1`);
+        const result = stmt.all(userId);
+        return result ? result.map(item => item.FlowerId) : [];
+    }
 }
 
 module.exports = UsersFavoritesRepository;

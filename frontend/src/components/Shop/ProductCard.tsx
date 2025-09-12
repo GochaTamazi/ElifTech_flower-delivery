@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import {Flower} from '../../types';
+import React, { useState, useContext } from 'react';
+import { Flower } from '../../types';
 import './ProductCard.css';
+import { useSession } from '../../hooks/useSession';
 
 interface ProductCardProps {
     flower: Flower;
@@ -10,11 +11,27 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
     const [isFavorite, setIsFavorite] = useState(false);
     
+    const { userId } = useSession();
+    
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         const newFavoriteState = !isFavorite;
         setIsFavorite(newFavoriteState);
-        alert(`Цветок "${flower.Name}" ${newFavoriteState ? 'добавлен в' : 'удалён из'} избранное`);
+        
+        // Генерируем случайный ID, если нет сессии
+        const getRandomUserId = () => {
+            return 'user_' + Math.floor(Math.random() * 1000000);
+        };
+
+        // Формируем JSON с данными
+        const favoriteData = {
+            UserID: userId || getRandomUserId(),
+            FlowerID: flower.Id,
+            Favorite: newFavoriteState ? 1 : 0
+        };
+        
+        // Выводим JSON в alert
+        alert(JSON.stringify(favoriteData, null, 2));
     };
     return (
         <div className="product-card" title={flower.Description}>
