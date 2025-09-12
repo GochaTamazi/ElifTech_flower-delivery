@@ -85,15 +85,27 @@ export const useSession = (): UseSessionReturn => {
             setIsLoading(true);
             const data = await initOrCheckSession();
             if (data) {
-                setSessionData({
+                const newSessionData = {
                     userId: data.userId,
                     sessionId: data.sessionId,
                     isAuthenticated: data.isAuthenticated ?? false,
-                });
+                };
+                
+                setSessionData(newSessionData);
+                
+                // Ensure userId is saved to localStorage
+                if (newSessionData.userId) {
+                    localStorage.setItem('userId', newSessionData.userId);
+                }
+                
                 setError(null);
             }
         } catch (err) {
+            console.error('Session refresh error:', err);
             setError(err instanceof Error ? err : new Error('Failed to refresh session'));
+            
+            // Clear userId from localStorage on error
+            localStorage.removeItem('userId');
         } finally {
             setIsLoading(false);
         }
