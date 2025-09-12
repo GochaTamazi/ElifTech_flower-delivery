@@ -31,12 +31,21 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
 
 
             <p>${flower.Price}</p>
-            <button
-                className="add-to-cart"
-                onClick={() => onAddToCart(flower)}
-            >
-                Add to Cart
-            </button>
+            <div className="product-card-footer">
+                <button
+                    className="add-to-cart"
+                    onClick={() => onAddToCart(flower)}
+                >
+                    Add to Cart
+                </button>
+                <div className="date-added">
+                    {new Date(flower.DateAdded).toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    })}
+                </div>
+            </div>
         </div>
     );
 };

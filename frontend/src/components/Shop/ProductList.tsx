@@ -49,15 +49,7 @@ const ProductList: React.FC<ProductListProps> = ({
 
     return (
         <div className={styles.container}>
-            <div className={styles.sortInfo}>
-                {sortBy && (
-                    <span>
-                        Сортировка по: {sortBy === 'price' ? 'цене' : 'дате'} 
-                        ({sortOrder === 'asc' ? 'по возрастанию' : 'по убыванию'})
-                    </span>
-                )}
-            </div>
-            
+
             <div className={styles.productsGrid}>
                 {sortedFlowers.map((flower: Flower) => (
                     <ProductCard 
