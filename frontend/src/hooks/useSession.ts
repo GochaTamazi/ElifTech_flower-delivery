@@ -1,5 +1,6 @@
 // src/hooks/useSession.ts
 import { useEffect, useState, useCallback } from 'react';
+import {apiConfig} from '../config';
 
 interface SessionResponse {
     success: boolean;
@@ -40,7 +41,7 @@ export const useSession = (): UseSessionReturn => {
     const initOrCheckSession = useCallback(async (): Promise<SessionResponse['data'] | null> => {
         try {
             console.log('Проверяем существующую сессию...');
-            const checkResponse = await fetch('http://localhost:3000/session/check', {
+            const checkResponse = await fetch(`${apiConfig.baseURL}/session/check`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -61,7 +62,8 @@ export const useSession = (): UseSessionReturn => {
             }
 
             console.log('Сессия не найдена, инициализируем новую...');
-            const initResponse = await fetch('http://localhost:3000/session/init', {
+
+            const initResponse = await fetch(`${apiConfig.baseURL}/session/init`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',

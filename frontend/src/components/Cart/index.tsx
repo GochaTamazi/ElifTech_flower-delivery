@@ -4,6 +4,7 @@ import { CartItem as CartItemType, OrderForm as OrderFormType } from '../../type
 import './Cart.css';
 import CartItem from './CartItem';
 import OrderFormComponent from './OrderForm';
+import { apiConfig } from '../../config';
 
 interface CartProps {
     cartItems: CartItemType[];
@@ -85,7 +86,7 @@ const Cart: React.FC<CartProps> = ({
             
             let response;
             try {
-                response = await fetch('http://localhost:3000/orders/', {
+                response = await fetch(`${apiConfig.baseURL}/orders/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

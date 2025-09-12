@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import './OrderDetails.css';
 import backIcon from '../../assets/back-arrow.svg'; // Make sure to add a back arrow icon
+import {apiConfig} from '../../config';
 
 interface OrderItem {
     Id: number;
@@ -72,7 +73,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({orderId, onBackToShop}) => {
                 setError(null);
 
                 // Fetch order details from the API
-                const response = await fetch(`http://localhost:3000/orders/${orderId}`, {
+                const response = await fetch(`${apiConfig.baseURL}/orders/${orderId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

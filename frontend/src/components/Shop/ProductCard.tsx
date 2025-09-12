@@ -2,8 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {Flower} from '../../types';
 import './ProductCard.css';
 import {useSession} from '../../hooks/useSession';
-
-const API_BASE_URL = 'http://localhost:3000';
+import {apiConfig} from '../../config';
 
 interface ProductCardProps {
     flower: Flower;
@@ -29,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/favorites/${flowerId}`, {
+            const response = await fetch(`${apiConfig.baseURL}/favorites/${flowerId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/favorites/${favoriteId}`, {
+            const response = await fetch(`${apiConfig.baseURL}/favorites/${favoriteId}`, {
                 method: 'DELETE',
                 credentials: 'include',
             });
