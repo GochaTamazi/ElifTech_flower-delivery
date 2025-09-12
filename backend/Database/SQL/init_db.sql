@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS Orders
     DeliveryLatitude  REAL,
     DeliveryLongitude REAL,
     ShopId            INTEGER,          -- добавлено для связи с магазином
-    CouponCode        TEXT,             -- применённый купон
     TotalPrice        REAL NOT NULL,
     CreatedAt         DATETIME DEFAULT CURRENT_TIMESTAMP,
     DeliveryDateTime  DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -47,15 +46,6 @@ CREATE TABLE IF NOT EXISTS OrderItems
     FOREIGN KEY (FlowerId) REFERENCES Flowers (Id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Coupons
-(
-    Id       INTEGER PRIMARY KEY AUTOINCREMENT,
-    Code     TEXT NOT NULL UNIQUE,
-    Discount REAL NOT NULL
-);
-
-
-
 CREATE TABLE IF NOT EXISTS UsersFavorites
 (
     Id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,7 +56,6 @@ CREATE TABLE IF NOT EXISTS UsersFavorites
 );
 
 
--- Индексы
 CREATE INDEX IF NOT EXISTS idx_flowers_shopid
     ON Flowers (ShopId);
 

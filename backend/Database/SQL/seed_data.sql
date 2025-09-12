@@ -27,6 +27,7 @@ VALUES
 (1, 'Rose Heart', 'Heart-shaped rose arrangement', 50.00, 'rose_heart.jpg'),
 (1, 'Luxury Rose Box', 'Premium roses in box', 70.00, 'rose_box.jpg'),
 
+
 -- Магазин 2
 (2, 'Red Tulip', 'Fresh red tulip', 4.00, 'tulip_red.jpg'),
 (2, 'Yellow Tulip', 'Bright yellow tulip', 4.20, 'tulip_yellow.jpg'),
@@ -135,9 +136,3 @@ VALUES
 (10, 'Magnolia Charm', 'Special magnolia arrangement', 55.00, 'magnolia_charm.jpg'),
 (10, 'Golden Magnolia', 'Rare golden magnolia', 95.00, 'magnolia_golden.jpg');
 
-
-INSERT INTO Coupons (Code, Discount)
-VALUES ('WELCOME10', 10.0),
-       ('SPRING20', 20.0),
-       ('LOVE5', 5.0),
-       ('VIP30', 30.0);

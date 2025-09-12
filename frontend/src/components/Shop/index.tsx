@@ -11,6 +11,9 @@ interface ShopProps {
     isLoading: boolean;
     sortBy: 'price' | 'date' | null;
     sortOrder: 'asc' | 'desc';
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
     onSelectShop: (id: number) => void;
     onAddToCart: (flower: Flower) => void;
 }
@@ -22,6 +25,9 @@ const Shop: React.FC<ShopProps> = ({
     isLoading,
     sortBy,
     sortOrder,
+    currentPage,
+    totalPages,
+    onPageChange,
     onSelectShop,
     onAddToCart
 }) => {
@@ -42,6 +48,9 @@ const Shop: React.FC<ShopProps> = ({
                     isLoading={isLoading}
                     sortBy={sortBy}
                     sortOrder={sortOrder}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
                     onAddToCart={onAddToCart}
                 />
             </main>
