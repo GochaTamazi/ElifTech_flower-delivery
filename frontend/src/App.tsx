@@ -125,8 +125,16 @@ const App: React.FC = () => {
 
     const handleOrderSuccess = useCallback((orderId: string) => {
         console.log('handleOrderSuccess called with orderId:', orderId);
-        // Clear cart and form after successful order
+        
+        // Clear cart from state
         setCartItems([]);
+        
+        // Clear cart from localStorage if user is logged in
+        if (userId) {
+            localStorage.removeItem(`cart_${userId}`);
+        }
+        
+        // Reset order form
         setOrderForm({
             name: '',
             email: '',
@@ -139,7 +147,7 @@ const App: React.FC = () => {
         setCurrentOrderId(orderId);
         console.log('Setting activeTab to order-details');
         setActiveTab('order-details');
-    }, []);
+    }, [userId]);
 
     const getShops = async () => {
         const response = await apiService.get<Shop[]>('/shops');
