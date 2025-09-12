@@ -5,11 +5,23 @@ import {Flower, Shop, CartItem, OrderForm, ShopResponse} from './types';
 import ShopPage from './components/Shop';
 import CartPage from './components/Cart';
 import OrderDetails from './components/OrderDetails';
+import { useSession } from './hooks/useSession';
 
 type SortBy = 'price' | 'date' | null;
 type SortOrder = 'asc' | 'desc';
 
+declare global {
+  interface Window {
+    crypto: Crypto & {
+      randomUUID: () => string;
+    };
+  }
+}
+
 const App: React.FC = () => {
+    // Session management
+    const { userId, isLoading: isSessionLoading } = useSession();
+    
     // State
     const [activeTab, setActiveTab] = useState<'shop' | 'cart' | 'order-details'>('shop');
     const [currentOrderId, setCurrentOrderId] = useState<string>('');
@@ -26,6 +38,26 @@ const App: React.FC = () => {
         phone: '',
         address: ''
     });
+    
+    // Load cart from localStorage when userId changes
+    useEffect(() => {
+        if (userId) {
+            const savedCart = localStorage.getItem(`cart_${userId}`);
+            if (savedCart) {
+                try {
+                    const parsedCart = JSON.parse(savedCart);
+                    setCartItems(parsedCart);
+                } catch (error) {
+                    console.error('Error parsing saved cart:', error);
+                    setCartItems([]);
+                }
+            } else {
+                setCartItems([]);
+            }
+        } else {
+            setCartItems([]);
+        }
+    }, [userId]);
 
     // Helper function to validate if an object matches the Flower interface
     const isValidFlower = (data: any): data is Flower => {
@@ -43,36 +75,46 @@ const App: React.FC = () => {
 
     // Cart functions
     const addToCart = useCallback((flower: Flower) => {
+        if (!userId) return; // Don't add to cart if no user session
+        
         setCartItems(prevItems => {
             const existingItem = prevItems.find(item => item.Id === flower.Id);
-            if (existingItem) {
-                return prevItems.map(item =>
+            const updatedItems = existingItem
+                ? prevItems.map(item =>
                     item.Id === flower.Id
-                        ? {...item, quantity: item.quantity + 1}
+                        ? { ...item, quantity: item.quantity + 1 }
                         : item
-                );
-            }
-            return [...prevItems, {...flower, quantity: 1}];
+                )
+                : [...prevItems, { ...flower, quantity: 1, userId }];
+                
+            // Save to localStorage
+            localStorage.setItem(`cart_${userId}`, JSON.stringify(updatedItems));
+            
+            return updatedItems;
         });
-    }, []);
+    }, [userId]);
 
     const removeFromCart = useCallback((flowerId: number) => {
-        setCartItems(prevItems =>
-            prevItems.filter(item => item.Id !== flowerId)
-        );
-    }, []);
+        if (!userId) return;
+        
+        setCartItems(prevItems => {
+            const updatedItems = prevItems.filter(item => item.Id !== flowerId);
+            localStorage.setItem(`cart_${userId}`, JSON.stringify(updatedItems));
+            return updatedItems;
+        });
+    }, [userId]);
 
     const updateQuantity = useCallback((flowerId: number, newQuantity: number) => {
-        if (newQuantity < 1) return;
-
-        setCartItems(prevItems =>
-            prevItems.map(item =>
-                item.Id === flowerId
-                    ? {...item, quantity: newQuantity}
-                    : item
-            )
-        );
-    }, []);
+        if (newQuantity < 1 || !userId) return;
+        
+        setCartItems(prevItems => {
+            const updatedItems = prevItems.map(item =>
+                item.Id === flowerId ? { ...item, quantity: newQuantity } : item
+            );
+            localStorage.setItem(`cart_${userId}`, JSON.stringify(updatedItems));
+            return updatedItems;
+        });
+    }, [userId]);
 
     const handleOrderFormChange = useCallback((field: keyof OrderForm, value: string) => {
         setOrderForm(prev => ({
@@ -98,7 +140,6 @@ const App: React.FC = () => {
         console.log('Setting activeTab to order-details');
         setActiveTab('order-details');
     }, []);
-
 
     const getShops = async () => {
         const response = await apiService.get<Shop[]>('/shops');
@@ -148,14 +189,30 @@ const App: React.FC = () => {
         }
     };
 
-    // Load shops and flowers when component mounts or selectedShop changes
     useEffect(() => {
-        getShops();
-        if (selectedShop) {
-            fetchFlowers(selectedShop);
+        // Only load data if we have a valid session
+        if (!isSessionLoading && userId) {
+            getShops();
+            if (selectedShop) {
+                fetchFlowers(selectedShop);
+            }
         }
-    }, [selectedShop]);
+    }, [selectedShop, isSessionLoading, userId]);
 
+    // Show loading while session is being initialized
+    if (isSessionLoading) {
+        return <div className="loading">Initializing session...</div>;
+    }
+    
+    // Check if we have a valid user ID
+    if (!userId) {
+        return (
+            <div className="error">
+                Error: Could not initialize user session. Please refresh the page.
+            </div>
+        );
+    }
+    
     return (
         <div className="app">
             <header className="header">

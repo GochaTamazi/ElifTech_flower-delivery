@@ -1,0 +1,271 @@
+import React, {useState, useEffect, useCallback} from 'react';
+import './App.css';
+import apiService from "./api/apiService";
+import {Flower, Shop, CartItem, OrderForm, ShopResponse} from './types';
+import ShopPage from './components/Shop';
+import CartPage from './components/Cart';
+import OrderDetails from './components/OrderDetails';
+import { useSession } from './hooks/useSession';
+
+type SortBy = 'price' | 'date' | null;
+type SortOrder = 'asc' | 'desc';
+
+declare global {
+  interface Window {
+    crypto: Crypto & {
+      randomUUID: () => string;
+    };
+  }
+}
+
+const App: React.FC = () => {
+    // Session management
+    const { userId, isLoading: isSessionLoading } = useSession();
+    
+    // State
+    const [activeTab, setActiveTab] = useState<'shop' | 'cart' | 'order-details'>('shop');
+    const [currentOrderId, setCurrentOrderId] = useState<string>('');
+    const [selectedShop, setSelectedShop] = useState<number>(1);
+    const [sortBy, setSortBy] = useState<SortBy>(null);
+    const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+    const [shops, setShops] = useState<Shop[]>([]);
+    const [flowers, setFlowers] = useState<Flower[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+    // Load cart from localStorage when userId changes
+    useEffect(() => {
+        if (userId) {
+            const savedCart = localStorage.getItem(`cart_${userId}`);
+            if (savedCart) {
+                try {
+                    const parsedCart = JSON.parse(savedCart);
+                    setCartItems(parsedCart);
+                } catch (error) {
+                    console.error('Error parsing saved cart:', error);
+                    setCartItems([]);
+                }
+            } else {
+                setCartItems([]);
+            }
+        } else {
+            setCartItems([]);
+        }
+    }, [userId]);
+
+    // Save cart to localStorage when it changes
+    useEffect(() => {
+        if (userId) {
+            localStorage.setItem(`cart_${userId}`, JSON.stringify(cartItems));
+        }
+    }, [cartItems, userId]);
+
+    // Fetch shops and flowers
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!userId || isSessionLoading) return;
+            
+            setIsLoading(true);
+            setError(null);
+            
+            try {
+                // Fetch shops
+                const shopsResponse = await apiService.get<ShopResponse>('/shops');
+                setShops(shopsResponse.data.shops);
+                
+                // Fetch flowers for the selected shop
+                const flowersResponse = await apiService.get<Flower[]>(`/shops/${selectedShop}/flowers`);
+                setFlowers(flowersResponse.data);
+            } catch (err) {
+                setError('Failed to fetch data. Please try again later.');
+                console.error('Error fetching data:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [selectedShop, userId, isSessionLoading]);
+
+    // Sort flowers
+    const sortedFlowers = useCallback(() => {
+        const sorted = [...flowers];
+        
+        if (sortBy === 'price') {
+            sorted.sort((a, b) => {
+                const priceA = a.price || 0;
+                const priceB = b.price || 0;
+                return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+            });
+        } else if (sortBy === 'date') {
+            sorted.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+            });
+        }
+        
+        return sorted;
+    }, [flowers, sortBy, sortOrder]);
+
+    // Add item to cart
+    const addToCart = (flower: Flower) => {
+        if (!userId) return;
+        
+        setCartItems(prevItems => {
+            const existingItem = prevItems.find(item => item.flower.Id === flower.Id);
+            
+            if (existingItem) {
+                return prevItems.map(item =>
+                    item.flower.Id === flower.Id
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
+                );
+            }
+            
+            return [...prevItems, { flower, quantity: 1 }];
+        });
+    };
+
+    // Remove item from cart
+    const removeFromCart = (flowerId: number) => {
+        setCartItems(prevItems => prevItems.filter(item => item.flower.Id !== flowerId));
+    };
+
+    // Update item quantity in cart
+    const updateQuantity = (flowerId: number, quantity: number) => {
+        if (quantity < 1) {
+            removeFromCart(flowerId);
+            return;
+        }
+        
+        setCartItems(prevItems =>
+            prevItems.map(item =>
+                item.flower.Id === flowerId ? { ...item, quantity } : item
+            )
+        );
+    };
+
+    // Handle order submission
+    const handleOrderSubmit = async (formData: OrderForm) => {
+        if (!userId) return;
+        
+        try {
+            setIsLoading(true);
+            setError(null);
+            
+            const orderData = {
+                ...formData,
+                items: cartItems.map(item => ({
+                    flowerId: item.flower.Id,
+                    quantity: item.quantity,
+                    price: item.flower.price
+                })),
+                total: cartItems.reduce(
+                    (sum, item) => sum + (item.flower.price || 0) * item.quantity,
+                    0
+                ),
+                userId
+            };
+            
+            const response = await apiService.post('/orders', orderData);
+            setCurrentOrderId(response.data.orderId);
+            setActiveTab('order-details');
+            setCartItems([]);
+        } catch (err) {
+            setError('Failed to submit order. Please try again.');
+            console.error('Error submitting order:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Handle shop selection
+    const handleShopSelect = (shopId: number) => {
+        setSelectedShop(shopId);
+        setSortBy(null);
+        setSortOrder('asc');
+    };
+
+    // Loading state
+    if (isSessionLoading) {
+        return <div className="loading">Loading session...</div>;
+    }
+
+    // Error state
+    if (error) {
+        return <div className="error">{error}</div>;
+    }
+
+    // Main render
+    return (
+        <div className="app">
+            <header className="app-header">
+                <h1>Flower Delivery</h1>
+                <nav>
+                    <button 
+                        className={activeTab === 'shop' ? 'active' : ''}
+                        onClick={() => setActiveTab('shop')}
+                    >
+                        Shop
+                    </button>
+                    <button 
+                        className={activeTab === 'cart' ? 'active' : ''}
+                        onClick={() => setActiveTab('cart')}
+                        disabled={cartItems.length === 0}
+                    >
+                        Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+                    </button>
+                </nav>
+            </header>
+
+            <main className="app-main">
+                {activeTab === 'shop' && (
+                    <ShopPage
+                        shops={shops}
+                        flowers={sortedFlowers()}
+                        selectedShop={selectedShop}
+                        onShopSelect={handleShopSelect}
+                        onAddToCart={addToCart}
+                        sortBy={sortBy}
+                        sortOrder={sortOrder}
+                        onSortChange={(field) => {
+                            if (sortBy === field) {
+                                setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+                            } else {
+                                setSortBy(field);
+                                setSortOrder('asc');
+                            }
+                        }}
+                        isLoading={isLoading}
+                    />
+                )}
+
+                {activeTab === 'cart' && (
+                    <CartPage
+                        items={cartItems}
+                        onUpdateQuantity={updateQuantity}
+                        onRemoveItem={removeFromCart}
+                        onSubmitOrder={() => setActiveTab('order-details')}
+                    />
+                )}
+
+                {activeTab === 'order-details' && (
+                    <OrderDetails
+                        orderId={currentOrderId}
+                        onSubmit={handleOrderSubmit}
+                        onBack={() => setActiveTab('cart')}
+                        isLoading={isLoading}
+                    />
+                )}
+            </main>
+
+            <footer className="app-footer">
+                <p>© {new Date().getFullYear()} Flower Delivery. All rights reserved.</p>
+            </footer>
+        </div>
+    );
+};
+
+export default App;
