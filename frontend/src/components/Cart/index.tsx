@@ -69,18 +69,18 @@ const Cart: React.FC<CartProps> = ({
                 }))
             };
 
-            console.log('Отправка данных заказа:', orderData);
+            console.log('Sending order data:', orderData);
             
-            // Отправка заказа на бэкенд
-            console.log('Отправка заказа по адресу:', '/orders');
-            console.log('Данные заказа:', JSON.stringify(orderData, null, 2));
+            // Sending order to backend
+            console.log('Sending order to endpoint:', '/orders');
+            console.log('Order data:', JSON.stringify(orderData, null, 2));
             
-            // Логируем дату доставки для отладки
+            // Log delivery date for debugging
             if (orderForm.DeliveryDateTime) {
                 const deliveryDate = new Date(orderForm.DeliveryDateTime);
-                console.log('Форматированная дата доставки:', deliveryDate.toLocaleString('ru-RU'));
-                console.log('Дата в формате ISO:', deliveryDate.toISOString());
-                console.log('Смещение часового пояса (минуты):', deliveryDate.getTimezoneOffset());
+                console.log('Formatted delivery date:', deliveryDate.toLocaleString('en-US'));
+                console.log('Date in ISO format:', deliveryDate.toISOString());
+                console.log('Timezone offset (minutes):', deliveryDate.getTimezoneOffset());
             }
             
             let response;
@@ -102,21 +102,20 @@ const Cart: React.FC<CartProps> = ({
                 }
 
                 const result = await response.json();
-                
                 console.log('Order submitted successfully. Full response:', JSON.stringify(result, null, 2));
                 
                 if (!result) {
                     throw new Error('Empty response from server');
                 }
                 
-                // Предполагаем, что сервер возвращает заказ с полем 'id' или 'Id'
+                // Assume the server returns an order with an 'id' or 'Id' field
                 const orderId = result.id || result.Id || 
                               (result.order && (result.order.id || result.order.Id)) ||
                               (result.data && (result.data.id || result.data.Id));
                 
                 if (orderId) {
                     console.log('Order ID found in response:', orderId);
-                    // Показываем сообщение об успехе и передаем ID заказа в родительский компонент
+                    // Show success message and pass the order ID to the parent component
                     onOrderSuccess(String(orderId));
                 } else {
                     // If we can't find the order ID, try to extract it from the Location header

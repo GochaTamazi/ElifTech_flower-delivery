@@ -50,7 +50,7 @@ interface OrderDetailsProps {
 }
 
 const OrderDetails: React.FC<OrderDetailsProps> = ({orderId, onBackToShop}) => {
-    // Сбрасываем прокрутку при монтировании компонента
+    // Reset scroll when component mounts
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -121,7 +121,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({orderId, onBackToShop}) => {
     };
 
     const handleBack = () => {
-        window.scrollTo(0, 0); // Сбрасываем прокрутку перед переходом
+        window.scrollTo(0, 0); // Reset scroll before navigation
         onBackToShop();
     };
 

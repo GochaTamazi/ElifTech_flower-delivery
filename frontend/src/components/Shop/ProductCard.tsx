@@ -15,15 +15,15 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
     const [isLoading, setIsLoading] = useState(false);
     const {userId} = useSession();
 
-    // Обновляем локальное состояние, если изменился пропс
+    // Update local state if props change
     useEffect(() => {
         setIsFavorite(flower.IsFavorite === 1);
     }, [flower.IsFavorite]);
 
-    // Функция для обработки добавления в избранное
+    // Function to handle adding to favorites
     const handleAddToFavorites = async (flowerId: number) => {
         if (!userId) {
-            alert('Пожалуйста, авторизуйтесь, чтобы добавлять в избранное');
+            alert('Please log in to add to favorites');
             return;
         }
 
@@ -38,19 +38,19 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
             });
 
             if (!response.ok) {
-                throw new Error('Не удалось добавить в избранное');
+                throw new Error('Failed to add to favorites');
             }
 
             setIsFavorite(true);
         } catch (error) {
-            console.error('Ошибка при добавлении в избранное:', error);
+            console.error('Error adding to favorites:', error);
             setIsFavorite(false);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Функция для обработки удаления из избранного
+    // Function to handle removing from favorites
     const handleRemoveFromFavorites = async (favoriteId: number) => {
         if (!userId) return;
 
@@ -62,19 +62,19 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
             });
 
             if (!response.ok) {
-                throw new Error('Не удалось удалить из избранного');
+                throw new Error('Failed to remove from favorites');
             }
 
             setIsFavorite(false);
         } catch (error) {
-            console.error('Ошибка при удалении из избранного:', error);
+            console.error('Error removing from favorites:', error);
             setIsFavorite(true);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Обработчик клика по кнопке избранного
+    // Favorite button click handler
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
 
@@ -99,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
                     className={`favorite-btn ${isFavorite ? 'favorite-active' : ''}`}
                     onClick={handleFavoriteClick}
                     disabled={isLoading}
-                    aria-label={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
+                    aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
                     {isLoading ? '...' : '❤'}
                 </button>
@@ -128,7 +128,7 @@ const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
                     Add to Cart
                 </button>
                 <div className="date-added">
-                    {new Date(flower.DateAdded).toLocaleDateString('ru-RU', {
+                    {new Date(flower.DateAdded).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit'

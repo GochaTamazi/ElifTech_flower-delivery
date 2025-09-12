@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { OrderForm as OrderFormType } from '../../types';
 import './OrderForm.css';
 
-// Проверяем доступность react-datepicker
+// Check if react-datepicker is available
 let DatePicker: any = null;
 try {
     // @ts-ignore
@@ -27,7 +27,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
 }) => {
     const [localDate, setLocalDate] = useState<Date | null>(() => {
         try {
-            // Пытаемся распарсить существующую дату или используем текущую дату + 1 день в 12:00
+            // Try to parse the existing date or use the current date + 1 day at 12:00 PM
             const date = formData.DeliveryDateTime ? new Date(formData.DeliveryDateTime) : new Date();
             date.setDate(date.getDate() + 1);
             date.setHours(12, 0, 0, 0);
@@ -140,7 +140,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                 </div>
                 
                 <div className="form-group">
-                    <label>Дата и время доставки:</label>
+                    <label>Delivery Date and Time:</label>
                     {DatePicker ? (
                         <div className="datetime-picker">
                             <DatePicker
@@ -157,7 +157,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                                 showTimeSelect
                                 showTimeSelectOnly
                                 timeIntervals={30}
-                                timeCaption="Время"
+                                timeCaption="Time"
                                 dateFormat="HH:mm"
                                 className="time-input"
                                 minTime={new Date().setHours(9, 0, 0, 0)}
@@ -181,7 +181,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                     )}
                     {localDate && (
                         <div className="timezone-info">
-                            Ваше локальное время: {localDate.toLocaleString('ru-RU')}
+                            Your local time: {localDate.toLocaleString('en-US')}
                         </div>
                     )}
                 </div>
