@@ -14,11 +14,22 @@ class ShopsService extends BaseService {
         return this.repository.getAll({ limit: pageSize, offset });
     }
 
+
+    //USES
     /**
      * Get a single shop by ID with its flowers
      */
     getShopWithFlowers(shopId) {
         const shop = this.repository.getById(shopId);
+
+        /*return await this.repository.getAllFlowers({
+            sortBy,
+            sortOrder,
+            limit,
+            offset
+        });*/
+
+
         if (!shop) return null;
         
         shop.flowers = this.flowerRepo.getFlowersByShop(shopId);

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import './App.css';
 import apiService from "./api/apiService";
-import { Flower, Shop, CartItem, OrderForm, ShopResponse } from './types';
+import {Flower, Shop, CartItem, OrderForm, ShopResponse} from './types';
 import ShopPage from './components/Shop';
 import CartPage from './components/Cart';
 import OrderDetails from './components/OrderDetails';
@@ -47,28 +47,28 @@ const App: React.FC = () => {
             const existingItem = prevItems.find(item => item.Id === flower.Id);
             if (existingItem) {
                 return prevItems.map(item =>
-                    item.Id === flower.Id 
-                        ? { ...item, quantity: item.quantity + 1 } 
+                    item.Id === flower.Id
+                        ? {...item, quantity: item.quantity + 1}
                         : item
                 );
             }
-            return [...prevItems, { ...flower, quantity: 1 }];
+            return [...prevItems, {...flower, quantity: 1}];
         });
     }, []);
 
     const removeFromCart = useCallback((flowerId: number) => {
-        setCartItems(prevItems => 
+        setCartItems(prevItems =>
             prevItems.filter(item => item.Id !== flowerId)
         );
     }, []);
 
     const updateQuantity = useCallback((flowerId: number, newQuantity: number) => {
         if (newQuantity < 1) return;
-        
+
         setCartItems(prevItems =>
             prevItems.map(item =>
-                item.Id === flowerId 
-                    ? { ...item, quantity: newQuantity } 
+                item.Id === flowerId
+                    ? {...item, quantity: newQuantity}
                     : item
             )
         );
@@ -91,13 +91,14 @@ const App: React.FC = () => {
             phone: '',
             address: ''
         });
-        
+
         // Set the current order ID and navigate to order details
         console.log('Setting currentOrderId to:', orderId);
         setCurrentOrderId(orderId);
         console.log('Setting activeTab to order-details');
         setActiveTab('order-details');
     }, []);
+
 
     const getShops = async () => {
         const response = await apiService.get<Shop[]>('/shops');
@@ -109,7 +110,14 @@ const App: React.FC = () => {
     const fetchFlowers = async (shopId: number) => {
         try {
             setIsLoading(true);
-            const response = await apiService.get<ShopResponse>(`/shops/${shopId}`);
+
+
+            let sortBy = "DateAdded"
+            let sortOrder = "DESC";
+            let page = 1;
+            let pageSize = 10;
+
+            const response = await apiService.get<ShopResponse>(`/flowers/shop/${shopId}?sortBy=${sortBy}&sortOrder=${sortOrder}&page=${page}&pageSize=${pageSize}`);
 
             if (!response?.data) {
                 setFlowers([]);
@@ -117,10 +125,12 @@ const App: React.FC = () => {
                 return;
             }
 
+            console.log(response.data)
+
             const shopData = response.data;
-            if (Array.isArray(shopData.flowers)) {
-                const validFlowers = shopData.flowers.filter(flower => isValidFlower(flower));
-                if (validFlowers.length !== shopData.flowers.length) {
+            if (Array.isArray(shopData)) {
+                const validFlowers = shopData.filter(flower => isValidFlower(flower));
+                if (validFlowers.length !== shopData.length) {
                     console.warn('Some flower data is invalid and was filtered out');
                 }
                 setFlowers(validFlowers);
@@ -163,7 +173,7 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="sort-options">
-                    <button 
+                    <button
                         className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
                         onClick={() => {
                             if (sortBy === 'price') {
@@ -176,7 +186,7 @@ const App: React.FC = () => {
                     >
                         Sort by price {sortBy === 'price' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
                     </button>
-                    <button 
+                    <button
                         className={`sort-btn ${sortBy === 'date' ? 'active' : ''}`}
                         onClick={() => {
                             if (sortBy === 'date') {
@@ -193,7 +203,7 @@ const App: React.FC = () => {
             </header>
 
             {activeTab === 'shop' ? (
-                <ShopPage 
+                <ShopPage
                     shops={shops}
                     selectedShop={selectedShop}
                     flowers={flowers}
@@ -218,17 +228,17 @@ const App: React.FC = () => {
             )}
             {activeTab === 'order-details' && (
                 <>
-                    {console.log('Rendering OrderDetails:', { activeTab, currentOrderId })}
+                    {console.log('Rendering OrderDetails:', {activeTab, currentOrderId})}
                     {currentOrderId ? (
-                        <OrderDetails 
-                            orderId={currentOrderId} 
-                            onBackToShop={() => setActiveTab('shop')} 
+                        <OrderDetails
+                            orderId={currentOrderId}
+                            onBackToShop={() => setActiveTab('shop')}
                         />
                     ) : (
                         <div className="order-details">
                             <h2>No Order Found</h2>
                             <p>We couldn't find your order details. Please try again or contact support.</p>
-                            <button 
+                            <button
                                 className="back-to-shop"
                                 onClick={() => setActiveTab('shop')}
                             >

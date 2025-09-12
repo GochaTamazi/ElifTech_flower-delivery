@@ -9,13 +9,13 @@ class FlowersController extends BaseController {
     }
 
     initializeRoutes() {
-        // Get flowers by shop
+        // Get flowers by shop with sorting
         this.router.get('/shop/:shopId', this.getFlowersByShop.bind(this));
-        // Get all flowers with shop info
-        this.router.get('/shops', this.getAllShops.bind(this));
-        // Standard CRUD routes from BaseController
-        this.router.get('/', this.getAll.bind(this));
+        // Get all flowers with sorting
+        this.router.get('/', this.getAllFlowers.bind(this));
+        // Get 1 flower
         this.router.get('/:id', this.getById.bind(this));
+        // Other CRUD routes
         this.router.post('/', this.create.bind(this));
         this.router.put('/:id', this.update.bind(this));
         this.router.delete('/:id', this.delete.bind(this));
@@ -25,32 +25,73 @@ class FlowersController extends BaseController {
         return this.router;
     }
 
-    async getFlowersByShop(req, res) {
+    /**
+     * Get all flowers with sorting and pagination
+     */
+    async getAllFlowers(req, res) {
         try {
-            const { shopId } = req.params;
-            const { sortBy, page, pageSize } = req.query;
-            const flowers = await this.service.getFlowersByShop(shopId, {
-                sortBy,
-                page: parseInt(page) || 1,
-                pageSize: parseInt(pageSize) || 10
+            const { 
+                sortBy = 'DateAdded', 
+                sortOrder = 'DESC', 
+                page = 1, 
+                pageSize = 10
+            } = req.query;
+
+            const offset = (parseInt(page) - 1) * parseInt(pageSize);
+            
+            const flowers = await this.service.getAllFlowers({ 
+                sortBy, 
+                sortOrder,
+                limit: parseInt(pageSize),
+                offset
             });
+
             res.json(flowers);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error('Error getting all flowers:', error);
+            res.status(500).json({ 
+                error: 'Ошибка при получении списка цветов',
+                details: error.message 
+            });
         }
     }
 
-    async getAllShops(req, res) {
+    /**
+     * Get flowers by shop ID with sorting and pagination
+     */
+    //Uses
+    async getFlowersByShop(req, res) {
+        console.log(req.query);
+        console.log(req.params);
+        console.log(req.body);
+
+        //http://localhost:3000/flowers/shop/1?sortBy=DateAdded&sortOrder=DESC&page=1&pageSize=10
+
         try {
-            const { sortBy, page, pageSize } = req.query;
-            const shops = await this.service.getAllShopsWithFlowers({
-                sortBy,
-                page: parseInt(page) || 1,
-                pageSize: parseInt(pageSize) || 10
+            const { shopId } = req.params;
+            const { 
+                sortBy = 'DateAdded', 
+                sortOrder = 'DESC', 
+                page = 1, 
+                pageSize = 10 
+            } = req.query;
+
+            const offset = (parseInt(page) - 1) * parseInt(pageSize);
+            
+            const flowers = await this.service.getFlowersByShop(shopId, { 
+                sortBy, 
+                sortOrder,
+                limit: parseInt(pageSize),
+                offset
             });
-            res.json(shops);
+
+            res.json(flowers);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error(`Error getting flowers for shop ${req.params.shopId}:`, error);
+            res.status(500).json({ 
+                error: 'Ошибка при получении цветов магазина',
+                details: error.message 
+            });
         }
     }
 }

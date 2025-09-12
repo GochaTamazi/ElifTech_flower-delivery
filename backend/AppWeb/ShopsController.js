@@ -20,35 +20,62 @@ class ShopsController {
         this.router.delete('/:id', this.deleteShop.bind(this));
     }
 
+    //USES
     /**
      * Get all flower shops with optional pagination
      */
     async getAllShops(req, res) {
+        console.log("getAllShops")
         try {
-            const { page = 1, pageSize = 10 } = req.query;
+            const {page = 1, pageSize = 2} = req.query;
             const shops = await this.service.getAllShops({
                 page: parseInt(page),
                 pageSize: parseInt(pageSize)
             });
             res.json(shops);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({error: error.message});
         }
     }
 
+    //USES
     /**
      * Get a single shop by ID with its flowers
      */
     async getShopById(req, res) {
+        console.log("getShopById")
         try {
-            const { id } = req.params;
+            /*const {
+                id,
+                sortBy = 'DateAdded',
+                sortOrder = 'DESC',
+                page = 1,
+                pageSize = 10
+            } = req.query;*/
+
+            const {
+                id
+            } = req.query;
+
+            //const offset = (parseInt(page) - 1) * parseInt(pageSize);
+
+
             const shop = await this.service.getShopWithFlowers(id);
+
+            /*const shop = await this.service.getShopWithFlowers({
+                sortBy,
+                sortOrder,
+                limit: parseInt(pageSize),
+                offset
+            });*/
+
+
             if (!shop) {
-                return res.status(404).json({ error: 'Flower shop not found' });
+                return res.status(404).json({error: 'Flower shop not found'});
             }
             res.json(shop);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({error: error.message});
         }
     }
 
@@ -60,7 +87,7 @@ class ShopsController {
             const shop = await this.service.createShop(req.body);
             res.status(201).json(shop);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(400).json({error: error.message});
         }
     }
 
@@ -69,14 +96,14 @@ class ShopsController {
      */
     async updateShop(req, res) {
         try {
-            const { id } = req.params;
+            const {id} = req.params;
             const updatedShop = await this.service.updateShop(id, req.body);
             if (!updatedShop) {
-                return res.status(404).json({ error: 'Flower shop not found' });
+                return res.status(404).json({error: 'Flower shop not found'});
             }
             res.json(updatedShop);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(400).json({error: error.message});
         }
     }
 
@@ -85,14 +112,14 @@ class ShopsController {
      */
     async deleteShop(req, res) {
         try {
-            const { id } = req.params;
+            const {id} = req.params;
             const result = await this.service.deleteShop(id);
             if (!result) {
-                return res.status(404).json({ error: 'Flower shop not found' });
+                return res.status(404).json({error: 'Flower shop not found'});
             }
-            res.json({ success: true });
+            res.json({success: true});
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({error: error.message});
         }
     }
 
