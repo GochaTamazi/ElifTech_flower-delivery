@@ -53,6 +53,18 @@ CREATE TABLE IF NOT EXISTS Coupons
     Discount REAL NOT NULL
 );
 
+
+
+CREATE TABLE IF NOT EXISTS UsersFavorites
+(
+    Id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserId     TEXT    NOT NULL,
+    FlowerId   INTEGER NOT NULL,
+    IsFavorite INTEGER,
+    FOREIGN KEY (FlowerId) REFERENCES Flowers (Id) ON DELETE CASCADE
+);
+
+
 -- Индексы
 CREATE INDEX IF NOT EXISTS idx_flowers_shopid
     ON Flowers (ShopId);
@@ -65,3 +77,6 @@ CREATE INDEX IF NOT EXISTS idx_orderitems_flowerid
 
 CREATE INDEX IF NOT EXISTS idx_orders_createdat
     ON Orders (CreatedAt);
+
+CREATE INDEX IF NOT EXISTS idx_usersfavorites_flowerid
+    ON UsersFavorites (FlowerId);

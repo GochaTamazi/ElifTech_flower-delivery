@@ -39,40 +39,49 @@ export const useSession = (): UseSessionReturn => {
     // Initialize or check session
     const initOrCheckSession = useCallback(async (): Promise<SessionResponse['data'] | null> => {
         try {
-            // First, try to check existing session
+            console.log('Проверяем существующую сессию...');
             const checkResponse = await fetch('http://localhost:3000/session/check', {
                 method: 'GET',
-                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
                 },
+                credentials: 'include', // Возвращаем для корректной работы с куками
+            });
+
+            console.log('Ответ от /session/check:', {
+                status: checkResponse.status,
+                statusText: checkResponse.statusText,
+                headers: Object.fromEntries(checkResponse.headers.entries())
             });
 
             if (checkResponse.ok) {
-                const { data } = await checkResponse.json() as SessionResponse;
-                return data;
+                const response = await checkResponse.json() as SessionResponse;
+                console.log('Данные сессии:', response);
+                return response.data;
             }
 
-            // If no valid session, initialize a new one
+            console.log('Сессия не найдена, инициализируем новую...');
             const initResponse = await fetch('http://localhost:3000/session/init', {
-                method: 'POST',
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify({
-                    userAgent: window.navigator.userAgent,
-                    timestamp: new Date().toISOString(),
-                }),
                 credentials: 'include',
             });
 
+            console.log('Ответ от /session/init:', {
+                status: initResponse.status,
+                statusText: initResponse.statusText,
+                headers: Object.fromEntries(initResponse.headers.entries())
+            });
+
             if (!initResponse.ok) {
-                throw new Error(`Failed to initialize session: ${initResponse.statusText}`);
+                throw new Error(`Не удалось инициализировать сессию: ${initResponse.statusText}`);
             }
 
-            const { data } = await initResponse.json() as SessionResponse;
-            return data;
+            const response = await initResponse.json() as SessionResponse;
+            console.log('Новая сессия создана:', response);
+            return response.data;
         } catch (error) {
             console.error('Session error:', error);
             throw error;
