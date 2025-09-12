@@ -40,7 +40,6 @@ class OrdersService extends BaseService {
         }
 
         const orderId = uuidv4();
-        console.log(Name)
 
         this.repository.insert({  // Changed from orderRepo to repository
             Id: orderId,

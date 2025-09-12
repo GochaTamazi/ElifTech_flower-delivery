@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CartItem as CartItemType } from '../../types';
+import './CartItem.css'; // We'll add this file next
 
 interface CartItemProps {
     item: CartItemType;
@@ -21,7 +22,15 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemove })
                 )}
             </div>
             <div className="cart-item-details">
-                <h4 className="cart-item-name">{item.Name}</h4>
+                <div className="cart-item-name-container">
+                    <h4 className="cart-item-name">{item.Name}</h4>
+                    {item.Description && (
+                        <div className="tooltip">
+                            <span className="tooltip-icon">i</span>
+                            <span className="tooltip-text">{item.Description}</span>
+                        </div>
+                    )}
+                </div>
                 <p className="cart-item-price">${item.Price.toFixed(2)}</p>
             </div>
             <div className="cart-item-controls">

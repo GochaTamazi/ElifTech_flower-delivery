@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flower } from '../../types';
+import {Flower} from '../../types';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -7,9 +7,9 @@ interface ProductCardProps {
     onAddToCart: (flower: Flower) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ flower, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
     return (
-        <div className="product-card">
+        <div className="product-card" title={flower.Description}>
             <div className="flower-image">
                 <img
                     src={`/images/${flower.ImageUrl}`}
@@ -17,9 +17,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ flower, onAddToCart }) => {
                 />
                 <button className="favorite-btn">❤</button>
             </div>
-            <h3>{flower.Name}</h3>
+
+
+            <div className="cart-item-name-container">
+                <h3 className="cart-item-name">{flower.Name}</h3>
+                {flower.Description && (
+                    <div className="tooltip">
+                        <span className="tooltip-icon">i</span>
+                        <span className="tooltip-text">{flower.Description}</span>
+                    </div>
+                )}
+            </div>
+
+
             <p>${flower.Price}</p>
-            <button 
+            <button
                 className="add-to-cart"
                 onClick={() => onAddToCart(flower)}
             >
