@@ -15,13 +15,17 @@ class FlowersService extends BaseService {
      * @param {number} [options.offset] - Смещение для пагинации
      * @returns {Promise<Array>} - Массив цветов
      */
-    async getFlowersByShop(shopId, { sortBy = 'DateAdded', sortOrder = 'DESC', limit, offset } = {}) {
+    async getFlowersByShop(
+        shopId, {sortBy = 'DateAdded', sortOrder = 'DESC', limit, offset, userId} = {}) {
+
+        console.log("FlowersService.getFlowersByShop " + userId)
         try {
-            return await this.repository.getFlowersByShop(shopId, { 
-                sortBy, 
-                sortOrder, 
-                limit, 
-                offset 
+            return await this.repository.getFlowersByShop(shopId, {
+                sortBy,
+                sortOrder,
+                limit,
+                offset,
+                userId
             });
         } catch (error) {
             throw new Error(`Ошибка при получении цветов магазина: ${error.message}`);
@@ -37,13 +41,13 @@ class FlowersService extends BaseService {
      * @param {number} [options.offset] - Смещение для пагинации
      * @returns {Promise<Array>} - Массив всех цветов
      */
-    async getAllFlowers({ sortBy = 'DateAdded', sortOrder = 'DESC', limit, offset } = {}) {
+    async getAllFlowers({sortBy = 'DateAdded', sortOrder = 'DESC', limit, offset} = {}) {
         try {
-            return await this.repository.getAllFlowers({ 
-                sortBy, 
-                sortOrder, 
-                limit, 
-                offset 
+            return await this.repository.getAllFlowers({
+                sortBy,
+                sortOrder,
+                limit,
+                offset
             });
         } catch (error) {
             throw new Error(`Ошибка при получении всех цветов: ${error.message}`);
@@ -58,12 +62,12 @@ class FlowersService extends BaseService {
      * @param {string} [options.sortOrder='DESC'] - Порядок сортировки
      * @returns {Promise<Array>} - Массив найденных цветов
      */
-    async searchFlowers(query, { sortBy = 'DateAdded', sortOrder = 'DESC' } = {}) {
+    async searchFlowers(query, {sortBy = 'DateAdded', sortOrder = 'DESC'} = {}) {
         try {
             // Здесь должна быть логика поиска, но для простоты используем getAllFlowers
             // В реальном приложении здесь был бы полнотекстовый поиск
-            const flowers = await this.getAllFlowers({ sortBy, sortOrder });
-            return flowers.filter(flower => 
+            const flowers = await this.getAllFlowers({sortBy, sortOrder});
+            return flowers.filter(flower =>
                 flower.Name.toLowerCase().includes(query.toLowerCase()) ||
                 (flower.Description && flower.Description.toLowerCase().includes(query.toLowerCase()))
             );

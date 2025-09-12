@@ -24,6 +24,7 @@ export const apiService = {
     try {
       const response = await fetch(`${apiConfig.baseURL}${url}`, {
         headers: apiConfig.headers,
+        credentials: 'include',
       });
       return handleResponse<T>(response);
     } catch (error) {

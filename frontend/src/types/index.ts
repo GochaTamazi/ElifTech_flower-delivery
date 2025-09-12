@@ -6,6 +6,7 @@ export interface Flower {
     Price: number;
     DateAdded: string;
     ImageUrl: string;
+    IsFavorite: number;
 }
 
 export interface Shop {

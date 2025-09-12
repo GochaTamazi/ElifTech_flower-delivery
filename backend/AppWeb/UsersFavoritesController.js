@@ -26,7 +26,7 @@ class UsersFavoritesController extends BaseController {
             const userId = req.session.userId;
             const flowerId = parseInt(req.params.flowerId);
 
-            console.log(userId)
+            console.log("UsersFavoritesController.addToFavorites "+userId)
             console.log(flowerId)
             
             if (!userId) {

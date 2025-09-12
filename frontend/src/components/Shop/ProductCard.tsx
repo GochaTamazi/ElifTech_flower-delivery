@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Flower } from '../../types';
+import React, {useState, useEffect} from 'react';
+import {Flower} from '../../types';
 import './ProductCard.css';
-import { useSession } from '../../hooks/useSession';
+import {useSession} from '../../hooks/useSession';
 
 const API_BASE_URL = 'http://localhost:3000';
 
@@ -10,10 +10,15 @@ interface ProductCardProps {
     onAddToCart: (flower: Flower) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ flower, onAddToCart }) => {
-    const [isFavorite, setIsFavorite] = useState(false);
+const ProductCard: React.FC<ProductCardProps> = ({flower, onAddToCart}) => {
+    const [isFavorite, setIsFavorite] = useState(flower.IsFavorite === 1);
     const [isLoading, setIsLoading] = useState(false);
-    const { userId } = useSession();
+    const {userId} = useSession();
+
+    // Обновляем локальное состояние, если изменился пропс
+    useEffect(() => {
+        setIsFavorite(flower.IsFavorite === 1);
+    }, [flower.IsFavorite]);
 
     // Функция для обработки добавления в избранное
     const handleAddToFavorites = async (flowerId: number) => {
@@ -72,15 +77,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ flower, onAddToCart }) => {
     // Обработчик клика по кнопке избранного
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        
+
         if (isLoading) return;
-        
-        if (isFavorite) {
-            // Здесь нужно получить ID записи в избранном, если он у вас есть
-            // Показываю пример с flower.Id, но вам нужно использовать правильный ID записи
-            handleRemoveFromFavorites(flower.Id);
-        } else {
+
+        const newFavoriteState = !isFavorite;
+
+        if (newFavoriteState) {
             handleAddToFavorites(flower.Id);
+        } else {
+            handleRemoveFromFavorites(flower.Id);
         }
     };
     return (
@@ -90,12 +95,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ flower, onAddToCart }) => {
                     src={`/images/${flower.ImageUrl}`}
                     alt={flower.Name}
                 />
-                <button 
+                <button
                     className={`favorite-btn ${isFavorite ? 'favorite-active' : ''}`}
                     onClick={handleFavoriteClick}
+                    disabled={isLoading}
                     aria-label={isFavorite ? 'Удалить из избранного' : 'Добавить в избранное'}
                 >
-                    ❤
+                    {isLoading ? '...' : '❤'}
                 </button>
             </div>
 
@@ -108,6 +114,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ flower, onAddToCart }) => {
                         <span className="tooltip-text">{flower.Description}</span>
                     </div>
                 )}
+
+                <div>{}</div>
             </div>
 
 

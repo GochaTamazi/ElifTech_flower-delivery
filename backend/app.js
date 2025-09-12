@@ -1,42 +1,51 @@
 const express = require('express');
-const app = express();
-app.use(express.json());
-
-// Enable CORS for all routes
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Expose-Headers', 'Set-Cookie');
-
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
-});
-
+const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 
-// Подключаем middleware для работы с куками
+const app = express();
+
+// Trust first proxy (important if behind a proxy like nginx)
+app.set('trust proxy', 1);
+
+// Security headers
+app.use(helmet());
+
+// Parse JSON bodies
+app.use(express.json());
+
+// CORS configuration
+const corsOptions = {
+    origin: 'http://localhost:3001',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+
+// Cookie parser middleware
 app.use(cookieParser());
 
-// Настройка сессий
-app.use(session({
-    secret: 'your-secret-key',
+// Session configuration
+const sessionConfig = {
+    secret: 'your-secret-key-vr4jOYc62KcCfBux',
     resave: false,
     saveUninitialized: false,
     proxy: true,
     cookie: {
-        secure: false, // true если используете HTTPS
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production (HTTPS)
         httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 12 * 31 * 24 * 60 * 60 * 1000
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 12 * 31 * 24 * 60 * 60 * 1000, // 1 year
+        domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
     },
-    name: 'sessionId'
-}));
+    name: 'sessionId',
+    // Recommended for production with a session store
+    // store: new (require('connect-pg-simple')(session))()
+};
+
+app.use(session(sessionConfig));
 
 
 // Initialize database

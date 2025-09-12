@@ -5,23 +5,23 @@ import {Flower, Shop, CartItem, OrderForm, ShopResponse} from './types';
 import ShopPage from './components/Shop';
 import CartPage from './components/Cart';
 import OrderDetails from './components/OrderDetails';
-import { useSession } from './hooks/useSession';
+import {useSession} from './hooks/useSession';
 
 type SortBy = 'price' | 'date' | null;
 type SortOrder = 'asc' | 'desc';
 
 declare global {
-  interface Window {
-    crypto: Crypto & {
-      randomUUID: () => string;
-    };
-  }
+    interface Window {
+        crypto: Crypto & {
+            randomUUID: () => string;
+        };
+    }
 }
 
 const App: React.FC = () => {
     // Session management
-    const { userId, isLoading: isSessionLoading } = useSession();
-    
+    const {userId, isLoading: isSessionLoading} = useSession();
+
     // State
     const [activeTab, setActiveTab] = useState<'shop' | 'cart' | 'order-details'>('shop');
     const [currentOrderId, setCurrentOrderId] = useState<string>('');
@@ -38,7 +38,7 @@ const App: React.FC = () => {
         phone: '',
         address: ''
     });
-    
+
     // Load cart from localStorage when userId changes
     useEffect(() => {
         if (userId) {
@@ -76,27 +76,27 @@ const App: React.FC = () => {
     // Cart functions
     const addToCart = useCallback((flower: Flower) => {
         if (!userId) return; // Don't add to cart if no user session
-        
+
         setCartItems(prevItems => {
             const existingItem = prevItems.find(item => item.Id === flower.Id);
             const updatedItems = existingItem
                 ? prevItems.map(item =>
                     item.Id === flower.Id
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? {...item, quantity: item.quantity + 1}
                         : item
                 )
-                : [...prevItems, { ...flower, quantity: 1, userId }];
-                
+                : [...prevItems, {...flower, quantity: 1, userId}];
+
             // Save to localStorage
             localStorage.setItem(`cart_${userId}`, JSON.stringify(updatedItems));
-            
+
             return updatedItems;
         });
     }, [userId]);
 
     const removeFromCart = useCallback((flowerId: number) => {
         if (!userId) return;
-        
+
         setCartItems(prevItems => {
             const updatedItems = prevItems.filter(item => item.Id !== flowerId);
             localStorage.setItem(`cart_${userId}`, JSON.stringify(updatedItems));
@@ -106,10 +106,10 @@ const App: React.FC = () => {
 
     const updateQuantity = useCallback((flowerId: number, newQuantity: number) => {
         if (newQuantity < 1 || !userId) return;
-        
+
         setCartItems(prevItems => {
             const updatedItems = prevItems.map(item =>
-                item.Id === flowerId ? { ...item, quantity: newQuantity } : item
+                item.Id === flowerId ? {...item, quantity: newQuantity} : item
             );
             localStorage.setItem(`cart_${userId}`, JSON.stringify(updatedItems));
             return updatedItems;
@@ -125,15 +125,15 @@ const App: React.FC = () => {
 
     const handleOrderSuccess = useCallback((orderId: string) => {
         console.log('handleOrderSuccess called with orderId:', orderId);
-        
+
         // Clear cart from state
         setCartItems([]);
-        
+
         // Clear cart from localStorage if user is logged in
         if (userId) {
             localStorage.removeItem(`cart_${userId}`);
         }
-        
+
         // Reset order form
         setOrderForm({
             name: '',
@@ -211,7 +211,7 @@ const App: React.FC = () => {
     if (isSessionLoading) {
         return <div className="loading">Initializing session...</div>;
     }
-    
+
     // Check if we have a valid user ID
     if (!userId) {
         return (
@@ -220,7 +220,7 @@ const App: React.FC = () => {
             </div>
         );
     }
-    
+
     return (
         <div className="app">
             <header className="header">
@@ -248,10 +248,10 @@ const App: React.FC = () => {
                                 const newSortOrder = sortBy === 'price'
                                     ? (sortOrder === 'asc' ? 'desc' : 'asc')
                                     : 'asc';
-                            
+
                                 setSortBy(newSortBy);
                                 setSortOrder(newSortOrder);
-                            
+
                                 // Trigger data refetch with new sort parameters
                                 if (selectedShop) {
                                     fetchFlowers(selectedShop);
@@ -267,10 +267,10 @@ const App: React.FC = () => {
                                 const newSortOrder = sortBy === 'date'
                                     ? (sortOrder === 'asc' ? 'desc' : 'asc')
                                     : 'asc';
-                            
+
                                 setSortBy(newSortBy);
                                 setSortOrder(newSortOrder);
-                            
+
                                 // Trigger data refetch with new sort parameters
                                 if (selectedShop) {
                                     fetchFlowers(selectedShop);

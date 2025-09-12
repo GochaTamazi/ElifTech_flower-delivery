@@ -30,17 +30,17 @@ class FlowersController extends BaseController {
      */
     async getAllFlowers(req, res) {
         try {
-            const { 
-                sortBy = 'DateAdded', 
-                sortOrder = 'DESC', 
-                page = 1, 
+            const {
+                sortBy = 'DateAdded',
+                sortOrder = 'DESC',
+                page = 1,
                 pageSize = 10
             } = req.query;
 
             const offset = (parseInt(page) - 1) * parseInt(pageSize);
-            
-            const flowers = await this.service.getAllFlowers({ 
-                sortBy, 
+
+            const flowers = await this.service.getAllFlowers({
+                sortBy,
                 sortOrder,
                 limit: parseInt(pageSize),
                 offset
@@ -49,9 +49,9 @@ class FlowersController extends BaseController {
             res.json(flowers);
         } catch (error) {
             console.error('Error getting all flowers:', error);
-            res.status(500).json({ 
+            res.status(500).json({
                 error: 'Ошибка при получении списка цветов',
-                details: error.message 
+                details: error.message
             });
         }
     }
@@ -61,33 +61,39 @@ class FlowersController extends BaseController {
      */
     //Uses
     async getFlowersByShop(req, res) {
-        console.log(req.query);
+
         //http://localhost:3000/flowers/shop/1?sortBy=DateAdded&sortOrder=DESC&page=1&pageSize=10
 
+        const userId = req.session.userId;
+
+        console.log('FlowersController.getFlowersByShop ' + userId);
+        console.log(req.session.userId);
+
         try {
-            const { shopId } = req.params;
-            const { 
-                sortBy = 'DateAdded', 
-                sortOrder = 'DESC', 
-                page = 1, 
-                pageSize = 10 
+            const {shopId} = req.params;
+            const {
+                sortBy = 'DateAdded',
+                sortOrder = 'DESC',
+                page = 1,
+                pageSize = 10
             } = req.query;
 
             const offset = (parseInt(page) - 1) * parseInt(pageSize);
-            
-            const flowers = await this.service.getFlowersByShop(shopId, { 
-                sortBy, 
+
+            const flowers = await this.service.getFlowersByShop(shopId, {
+                sortBy,
                 sortOrder,
                 limit: parseInt(pageSize),
-                offset
+                offset,
+                userId
             });
 
             res.json(flowers);
         } catch (error) {
             console.error(`Error getting flowers for shop ${req.params.shopId}:`, error);
-            res.status(500).json({ 
+            res.status(500).json({
                 error: 'Ошибка при получении цветов магазина',
-                details: error.message 
+                details: error.message
             });
         }
     }

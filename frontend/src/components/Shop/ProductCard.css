@@ -201,7 +201,7 @@
     justify-content: center;
     cursor: pointer;
     font-size: 18px;
-    color: #e74c3c;
+    color: white;
     transition: all 0.3s ease;
     z-index: 2;
 }
