@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS Orders
     CouponCode        TEXT,             -- применённый купон
     TotalPrice        REAL NOT NULL,
     CreatedAt         DATETIME DEFAULT CURRENT_TIMESTAMP,
+    DeliveryDateTime  DATETIME DEFAULT CURRENT_TIMESTAMP,
     UserTimezone      TEXT,
     FOREIGN KEY (ShopId) REFERENCES Shops (Id)
 );

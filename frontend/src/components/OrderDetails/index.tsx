@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import './OrderDetails.css';
 import backIcon from '../../assets/back-arrow.svg'; // Make sure to add a back arrow icon
 
@@ -33,6 +33,7 @@ interface OrderDetailsType {
     CouponCode: string | null;
     TotalPrice: number;
     CreatedAt: string;
+    DeliveryDateTime: string;
     UserTimezone: string;
     items: OrderItem[];
     shop: ShopInfo;
@@ -48,7 +49,7 @@ interface OrderDetailsProps {
     onBackToShop: () => void;
 }
 
-const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) => {
+const OrderDetails: React.FC<OrderDetailsProps> = ({orderId, onBackToShop}) => {
     // Сбрасываем прокрутку при монтировании компонента
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -69,7 +70,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
             try {
                 setIsLoading(true);
                 setError(null);
-                
+
                 // Fetch order details from the API
                 const response = await fetch(`http://localhost:3000/orders/${orderId}`, {
                     method: 'GET',
@@ -77,14 +78,14 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                         'Content-Type': 'application/json',
                     },
                 });
-                
+
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
                 }
-                
+
                 const responseData: ApiResponse = await response.json();
-                
+
                 if (responseData.success && responseData.data) {
                     // The API returns items in the 'items' property, so we don't need to transform it
                     setOrder(responseData.data);
@@ -138,7 +139,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                 <div className="order-error">
                     <p>Unable to load order details.</p>
                     <button className="back-to-shop" onClick={handleBack}>
-                        <img src={backIcon} alt="Back" /> Back to Shop
+                        <img src={backIcon} alt="Back"/> Back to Shop
                     </button>
                 </div>
             </div>
@@ -151,7 +152,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                 <h1>Order Details</h1>
                 <p className="order-number">Order #{order.Id.substring(0, 8).toUpperCase()}</p>
             </div>
-            
+
             <div className="order-items">
                 <h2>Your Order</h2>
                 <div className="items-list">
@@ -160,9 +161,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                             <div key={item.Id} className="order-item">
                                 <div className="item-image">
                                     <div className="image-placeholder">
-                                        <img 
-                                            src={`/images/${item.imageUrl}`} 
-                                            alt={item.name} 
+                                        <img
+                                            src={`/images/${item.imageUrl}`}
+                                            alt={item.name}
                                             onError={(e) => {
                                                 const target = e.target as HTMLImageElement;
                                                 target.style.display = 'none';
@@ -188,13 +189,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                         <div className="no-items">No items in this order</div>
                     )}
                 </div>
-                
+
                 <div className="order-total">
                     <span>Total:</span>
                     <span className="total-amount">${order.TotalPrice.toFixed(2)}</span>
                 </div>
             </div>
-            
+
             <div className="order-info">
                 <div className="info-section">
                     <h3>Contact Information</h3>
@@ -212,7 +213,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                         </p>
                     )}
                 </div>
-                
+
                 <div className="info-section">
                     <h3>Shop Information</h3>
                     <p><strong>Name:</strong> {order.shop?.Name || 'N/A'}</p>
@@ -223,19 +224,20 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onBackToShop }) =>
                         </p>
                     )}
                 </div>
-                
+
                 <div className="info-section">
                     <h3>Order Details</h3>
                     <p><strong>Order Date:</strong> {formatDate(order.CreatedAt)}</p>
+                    <p><strong>Delivery Date Time:</strong> {formatDate(order.DeliveryDateTime)}</p>
                     <p><strong>Time Zone:</strong> {order.UserTimezone || 'N/A'}</p>
                     {order.CouponCode && (
                         <p><strong>Coupon Used:</strong> {order.CouponCode}</p>
                     )}
                 </div>
             </div>
-            
+
             <button className="back-to-shop" onClick={handleBack}>
-                <img src={backIcon} alt="Back" /> Back to Shop
+                <img src={backIcon} alt="Back"/> Back to Shop
             </button>
         </div>
     );

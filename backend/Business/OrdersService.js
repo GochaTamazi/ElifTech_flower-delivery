@@ -22,6 +22,7 @@ class OrdersService extends BaseService {
                     ShopId,
                     TotalPrice,
                     UserTimezone,
+                    DeliveryDateTime,
                     CouponCode,
                     OrderItems
                 }) {
@@ -52,7 +53,8 @@ class OrdersService extends BaseService {
             ShopId,
             CouponCode: CouponCode || null,
             TotalPrice: totalPrice,
-            UserTimezone: UserTimezone
+            UserTimezone: UserTimezone,
+            DeliveryDateTime: DeliveryDateTime
         });
 
         // Добавить позиции заказа

@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { OrderForm as OrderFormType } from '../../types';
 import './OrderForm.css';
+
+// Проверяем доступность react-datepicker
+let DatePicker: any = null;
+try {
+    // @ts-ignore
+    DatePicker = require('react-datepicker');
+    require('react-datepicker/dist/react-datepicker.css');
+} catch (e) {
+    console.warn('react-datepicker not available, using fallback inputs');
+}
 
 interface OrderFormProps {
     formData: OrderFormType;
@@ -15,9 +25,68 @@ const OrderForm: React.FC<OrderFormProps> = ({
     onSubmit,
     isSubmitDisabled
 }) => {
+    const [localDate, setLocalDate] = useState<Date | null>(() => {
+        try {
+            // Пытаемся распарсить существующую дату или используем текущую дату + 1 день в 12:00
+            const date = formData.DeliveryDateTime ? new Date(formData.DeliveryDateTime) : new Date();
+            date.setDate(date.getDate() + 1);
+            date.setHours(12, 0, 0, 0);
+            return date;
+        } catch (e) {
+            const date = new Date();
+            date.setDate(date.getDate() + 1);
+            date.setHours(12, 0, 0, 0);
+            return date;
+        }
+    });
+
+    // Update form data when local date changes
+    useEffect(() => {
+        if (localDate) {
+            // Convert to ISO string with timezone offset
+            const timezoneOffset = localDate.getTimezoneOffset();
+            const timezoneOffsetHours = Math.abs(Math.floor(timezoneOffset / 60));
+            const timezoneOffsetSign = timezoneOffset <= 0 ? '+' : '-';
+            const timezoneString = `${timezoneOffsetSign}${String(timezoneOffsetHours).padStart(2, '0')}:00`;
+            
+            const dateTimeString = localDate.toISOString().replace('Z', timezoneString);
+            onChange('DeliveryDateTime', dateTimeString);
+        }
+    }, [localDate]);
+
+    const handleDateChange = (date: Date | null) => {
+        if (!date) return;
+        
+        // If we have a previous date, preserve the time
+        if (localDate) {
+            date.setHours(
+                localDate.getHours(),
+                localDate.getMinutes(),
+                0,
+                0
+            );
+        }
+        
+        setLocalDate(date);
+    };
+
+    const handleTimeChange = (time: Date) => {
+        if (!localDate) return;
+        
+        const newDate = new Date(localDate);
+        newDate.setHours(
+            time.getHours(),
+            time.getMinutes(),
+            0,
+            0
+        );
+        
+        setLocalDate(newDate);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!isSubmitDisabled) {
+        if (!isSubmitDisabled && localDate) {
             onSubmit();
         }
     };
@@ -68,6 +137,53 @@ const OrderForm: React.FC<OrderFormProps> = ({
                         required
                         placeholder="Enter full delivery address"
                     />
+                </div>
+                
+                <div className="form-group">
+                    <label>Дата и время доставки:</label>
+                    {DatePicker ? (
+                        <div className="datetime-picker">
+                            <DatePicker
+                                selected={localDate}
+                                onChange={handleDateChange}
+                                minDate={new Date()}
+                                dateFormat="dd/MM/yyyy"
+                                className="date-input"
+                                required
+                            />
+                            <DatePicker
+                                selected={localDate}
+                                onChange={handleTimeChange}
+                                showTimeSelect
+                                showTimeSelectOnly
+                                timeIntervals={30}
+                                timeCaption="Время"
+                                dateFormat="HH:mm"
+                                className="time-input"
+                                minTime={new Date().setHours(9, 0, 0, 0)}
+                                maxTime={new Date().setHours(21, 0, 0, 0)}
+                            />
+                        </div>
+                    ) : (
+                        <input
+                            type="datetime-local"
+                            required
+                            min={new Date().toISOString().slice(0, 16)}
+                            onChange={(e) => {
+                                if (e.target.value) {
+                                    const date = new Date(e.target.value);
+                                    setLocalDate(date);
+                                }
+                            }}
+                            value={localDate ? localDate.toISOString().slice(0, 16) : ''}
+                            className="datetime-input"
+                        />
+                    )}
+                    {localDate && (
+                        <div className="timezone-info">
+                            Ваше локальное время: {localDate.toLocaleString('ru-RU')}
+                        </div>
+                    )}
                 </div>
 
             </form>

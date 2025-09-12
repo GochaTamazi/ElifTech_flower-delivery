@@ -36,7 +36,8 @@ const App: React.FC = () => {
         name: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        DeliveryDateTime: new Date().toISOString()
     });
 
     // Load cart from localStorage when userId changes
@@ -139,7 +140,8 @@ const App: React.FC = () => {
             name: '',
             email: '',
             phone: '',
-            address: ''
+            address: '',
+            DeliveryDateTime: new Date().toISOString()
         });
 
         // Set the current order ID and navigate to order details

@@ -23,6 +23,7 @@ export interface OrderForm {
     email: string;
     phone: string;
     address: string;
+    DeliveryDateTime: string; // ISO string with timezone
 }
 
 export interface ShopResponse {

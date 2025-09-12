@@ -56,6 +56,7 @@ const Cart: React.FC<CartProps> = ({
                 Email: orderForm.email,
                 Phone: orderForm.phone,
                 DeliveryAddress: orderForm.address,
+                DeliveryDateTime: orderForm.DeliveryDateTime,
                 DeliveryLatitude: 50.4501, // Default coordinates for Kiev
                 DeliveryLongitude: 30.5234, // Default coordinates for Kiev
                 ShopId: selectedShop,
@@ -68,11 +69,19 @@ const Cart: React.FC<CartProps> = ({
                 }))
             };
 
-            console.log('Sending order data:', orderData);
+            console.log('Отправка данных заказа:', orderData);
             
-            // Send the order to the backend
-            console.log('Sending order to:', '/orders');
-            console.log('Order data being sent:', JSON.stringify(orderData, null, 2));
+            // Отправка заказа на бэкенд
+            console.log('Отправка заказа по адресу:', '/orders');
+            console.log('Данные заказа:', JSON.stringify(orderData, null, 2));
+            
+            // Логируем дату доставки для отладки
+            if (orderForm.DeliveryDateTime) {
+                const deliveryDate = new Date(orderForm.DeliveryDateTime);
+                console.log('Форматированная дата доставки:', deliveryDate.toLocaleString('ru-RU'));
+                console.log('Дата в формате ISO:', deliveryDate.toISOString());
+                console.log('Смещение часового пояса (минуты):', deliveryDate.getTimezoneOffset());
+            }
             
             let response;
             try {
