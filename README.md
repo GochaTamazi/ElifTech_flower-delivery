@@ -34,7 +34,7 @@ If more time was available, I would have fixed the remaining bugs and implemente
 **Backend:** [Railway Deployment](https://eliftechflower-delivery-public-backend-production.up.railway.app/)
 
 
-https://eliftechflower-delivery-public-backend-production.up.railway.app/
+https://eliftechflower-delivery-public-backend-production.up.railway.app/shops
 
 
 | Method | Endpoint | Description |
@@ -53,7 +53,7 @@ https://eliftechflower-delivery-public-backend-production.up.railway.app/
 **React App:** [Vercel Deployment](https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app/)
 
 
-https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app/shops
+https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app/
 
 
 ## Notes
