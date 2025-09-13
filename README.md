@@ -38,14 +38,25 @@ Backend: Railway Deployment
 	https://eliftechflower-delivery-public-backend-production.up.railway.app/
 
 Method	Endpoint	Description
+
 GET	/shops	Get list of flower shops
+
 GET	/flowers/shop/:shopId?sortBy=:sortField&sortOrder=:sortDir&page=:page&pageSize=:pageSize	Get flowers by shop, with sorting and pagination
+
 GET	/orders/:orderId	Get order details by ID
+
 POST	/orders/	Create a new order
+
 POST	/favorites/:flowerId	Add a flower to favorites
+
 DELETE	/favorites/:favoriteId	Remove a flower from favorites
+
 GET	/session/check	Check session validity
+
 GET	/session/init	Initialize session
+
+
+
 Frontend
 
 React App: Vercel Deployment
