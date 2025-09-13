@@ -10,14 +10,14 @@ const InitDB = () => {
         console.log('Database initialized from init_db.sql');
 
 
-        /*const seedFile = path.resolve(__dirname, './SQL/seed_data.sql');
+        const seedFile = path.resolve(__dirname, './SQL/seed_data.sql');
         const seedSQL = fs.readFileSync(seedFile, 'utf-8');
         // Оборачиваем все вставки в транзакцию для скорости
         const insertTransaction = Db.transaction(() => {
             Db.exec(seedSQL);
         });
         insertTransaction();
-        console.log('Database seeded with test data');*/
+        console.log('Database seeded with test data');
 
 
     } catch (err) {

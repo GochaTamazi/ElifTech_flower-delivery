@@ -1,8 +1,11 @@
 # Use official Node.js LTS image
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Create app directory
 WORKDIR /usr/src/app
+
+# Install build tools required for native modules
+RUN apk add --no-cache python3 make g++
 
 # Copy package.json and package-lock.json
 COPY package*.json ./

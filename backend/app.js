@@ -3,6 +3,7 @@ const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const path = require('path');
 
 const app = express();
 
@@ -41,12 +42,11 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 
-
 // Initialize database
-const initDB = require('./Database/initDB');
-const db = require('./Database/db').getInstance();
-initDB();
 
+const initDB = require('./Database/InitDB');
+const db = require('./Database/Db').getInstance();
+initDB();
 
 // Initialize repositories
 const flowersRepo = new (require('./DataAccess/FlowersRepository'))(db);
