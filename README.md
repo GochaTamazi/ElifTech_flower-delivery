@@ -33,6 +33,10 @@ If more time was available, I would have fixed the remaining bugs and implemente
 
 **Backend:** [Railway Deployment](https://eliftechflower-delivery-public-backend-production.up.railway.app/)
 
+
+https://eliftechflower-delivery-public-backend-production.up.railway.app/
+
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET    | /shops | Get list of flower shops |
@@ -48,10 +52,26 @@ If more time was available, I would have fixed the remaining bugs and implemente
 
 **React App:** [Vercel Deployment](https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app/)
 
+
+https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app/
+
+
 ## Notes
 
 Some advanced features like Google Maps integration, order history, and coupons page were not completed due to limited time.  
 
 Unfortunately, after deployment, some features may not work as expected.
+
+
+
+![0](https://github.com/user-attachments/assets/74447d2d-4f0d-427e-847e-818b5d0d8bbd)
+
+
+
+![1](https://github.com/user-attachments/assets/c3978748-ae77-4e74-8c25-112e83ecd4c0)
+
+
+
+![2](https://github.com/user-attachments/assets/b5597253-551d-4398-a748-0bc9d6ffb996)
 
 
