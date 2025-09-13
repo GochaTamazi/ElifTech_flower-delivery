@@ -51,4 +51,7 @@ If more time was available, I would have fixed the remaining bugs and implemente
 ## Notes
 
 Some advanced features like Google Maps integration, order history, and coupons page were not completed due to limited time.  
-Post-deployment, some functions may not work as expected.
+
+Unfortunately, after deployment, some features may not work as expected.
+
+
