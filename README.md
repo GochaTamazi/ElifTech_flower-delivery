@@ -50,10 +50,10 @@ https://eliftechflower-delivery-public-backend-production.up.railway.app/shops
 
 ## Frontend
 
-**React App:** [Vercel Deployment](https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app/)
+**React App:** [Vercel Deployment](https://elif-tech-flower-delivery-public-fr.vercel.app/)
 
 
-https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app/
+[https://elif-tech-flower-delivery-public-fr.vercel.app/](https://elif-tech-flower-delivery-public-fr.vercel.app/)
 
 
 ## Notes
