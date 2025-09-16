@@ -16,31 +16,42 @@ app.use(helmet());
 // Parse JSON bodies
 app.use(express.json());
 
-// CORS configuration - allowing all origins for development
+// CORS configuration
+const allowedOrigins = [
+    "https://elif-tech-flower-delivery-public-fr.vercel.app",
+    "https://elif-tech-flower-delivery-public-frontend-8vz7qvx1p.vercel.app"
+];
 const corsOptions = {
-    origin: true, // Allow all origins
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 app.use(cors(corsOptions));
-
-// Cookie parser middleware
-app.use(cookieParser());
-
 // Session configuration
 const sessionConfig = {
-    secret: 'your-secret-key-vr4jOYc62KcCfBux', resave: false, saveUninitialized: false, proxy: true, cookie: {
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production (HTTPS)
+    secret: 'your-secret-key-vr4jOYc62KcCfBux',
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+        secure: true, // Railway всегда через HTTPS
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 12 * 31 * 24 * 60 * 60 * 1000, // 1 year
-        domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
-    }, name: 'sessionId', // Recommended for production with a session store
-    // store: new (require('connect-pg-simple')(session))()
+        sameSite: 'none', // важно для работы фронта с другого домена
+        maxAge: 12 * 31 * 24 * 60 * 60 * 1000, // 1 год
+    },
+    name: 'sessionId',
 };
-
 app.use(session(sessionConfig));
+
+// Cookie parser middleware
+// app.use(cookieParser());
 
 // Initialize database
 
