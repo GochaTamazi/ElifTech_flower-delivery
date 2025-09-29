@@ -3,7 +3,9 @@
 Web application where users can order flowers delivery.
 
 
-[ET-school Flower Delivery App (test task).pdf]([https://elif-tech-flower-delivery-public-fr.vercel.app/](https://github.com/GochaTamazi/ElifTech_flower-delivery/blob/main/ET-school%20Flower%20Delivery%20App%20(test%20task).pdf))
+
+[ET-school Flower Delivery App (test task).pdf](https://github.com/GochaTamazi/ElifTech_flower-delivery/blob/main/ET-school%20Flower%20Delivery%20App%20(test%20task).pdf)
+
 
 
 ## Overview
