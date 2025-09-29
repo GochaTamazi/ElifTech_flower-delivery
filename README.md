@@ -2,6 +2,10 @@
 
 Web application where users can order flowers delivery.
 
+
+https://github.com/GochaTamazi/ElifTech_flower-delivery/blob/main/ET-school%20Flower%20Delivery%20App%20(test%20task).pdf
+
+
 ## Overview
 
 This project was implemented according to the Flower Delivery test task.  
