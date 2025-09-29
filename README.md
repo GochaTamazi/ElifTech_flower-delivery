@@ -66,7 +66,7 @@ https://eliftechflower-delivery-public-backend-production.up.railway.app/shops
 
 Some advanced features like Google Maps integration, order history, and coupons page were not completed due to limited time.  
 
-Unfortunately, after deployment, some features may not work as expected.
+
 
 
 
